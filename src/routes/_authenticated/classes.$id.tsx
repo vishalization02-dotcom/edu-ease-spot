@@ -14,7 +14,7 @@ import {
   fetchFees,
   fetchStudents,
   todayISO,
-} from "@/lib/-data";
+} from "@/lib/classledger-data";
 
 export const Route = createFileRoute("/_authenticated/classes/$id")({
   component: ClassDashboardPage,
