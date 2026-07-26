@@ -27,7 +27,7 @@ const items = [
 ];
 
 export function AppSidebar() {
-  const { state } = useSidebar();
+  const { state, isMobile, setOpenMobile } = useSidebar();
   const collapsed = state === "collapsed";
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const navigate = useNavigate();
@@ -64,7 +64,14 @@ export function AppSidebar() {
                 return (
                   <SidebarMenuItem key={item.url}>
                     <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
-                      <Link to={item.url}>
+                      <Link
+                        to={item.url}
+                        onClick={() => {
+                        if (isMobile) {
+                            setOpenMobile(false);
+                            }
+                          }}
+                        >
                         <item.icon />
                         <span>{item.title}</span>
                       </Link>
