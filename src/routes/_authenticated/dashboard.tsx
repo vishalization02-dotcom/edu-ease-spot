@@ -9,6 +9,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { currentMonth, fetchFees, fetchStudents, todayISO, fetchAttendance, fetchClasses } from "@/lib/classledger-data";
 
 // chatGPT
+import AnalyticsCard from "@/components/dashboard/analytics-card";
 import { Footer } from "@/components/dashboard/Footer";
 import { Activity } from "lucide-react";
 import { TeacherProgress } from "@/components/dashboard/TeacherProgress";
@@ -262,7 +263,15 @@ function DashboardPage() {
 
       <QuickActions />
 {/* chatGPT */}
-<SmartInsights />
+<div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
+  <div className="xl:col-span-2">
+    <SmartInsights />
+  </div>
+
+  <div className="xl:col-span-3">
+    <AnalyticsCard />
+  </div>
+</div>
 
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4">
