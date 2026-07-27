@@ -5,41 +5,45 @@ import AnalyticsGraph from "./analytics-graph";
 export default function AnalyticsCard() {
   return (
     <Card className="rounded-2xl shadow-sm">
-      <CardHeader className="flex flex-row items-center justify-between">
-        <CardTitle className="text-xl font-semibold">
-          Analytics
-        </CardTitle>
+      <CardHeader className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
 
-        <div className="flex gap-3">
-          <Select defaultValue="revenue">
-            <SelectTrigger className="w-[160px]">
-              <SelectValue />
-            </SelectTrigger>
+  <CardTitle className="text-xl font-semibold">
+    Analytics
+  </CardTitle>
 
-            <SelectContent>
-              <SelectItem value="revenue">Revenue</SelectItem>
-              <SelectItem value="students">Students</SelectItem>
-              <SelectItem value="attendance">Attendance</SelectItem>
-              <SelectItem value="fees">Pending Fees</SelectItem>
-              <SelectItem value="xp">XP</SelectItem>
-            </SelectContent>
-          </Select>
+  <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto">
 
-          <Select defaultValue="current">
-            <SelectTrigger className="w-[170px]">
-              <SelectValue />
-            </SelectTrigger>
+    <Select defaultValue="revenue">
+      <SelectTrigger className="w-full sm:w-[160px]">
+        <SelectValue />
+      </SelectTrigger>
 
-            <SelectContent>
-              <SelectItem value="current">Current Month</SelectItem>
-              <SelectItem value="last">Last Month</SelectItem>
-              <SelectItem value="january">January</SelectItem>
-              <SelectItem value="february">February</SelectItem>
-              <SelectItem value="march">March</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-      </CardHeader>
+      <SelectContent>
+        <SelectItem value="revenue">Revenue</SelectItem>
+        <SelectItem value="students">Students</SelectItem>
+        <SelectItem value="attendance">Attendance</SelectItem>
+        <SelectItem value="fees">Pending Fees</SelectItem>
+        <SelectItem value="xp">XP</SelectItem>
+      </SelectContent>
+    </Select>
+
+    <Select defaultValue="current">
+      <SelectTrigger className="w-full sm:w-[170px]">
+        <SelectValue />
+      </SelectTrigger>
+
+      <SelectContent>
+        <SelectItem value="current">Current Month</SelectItem>
+        <SelectItem value="last">Last Month</SelectItem>
+        <SelectItem value="january">January</SelectItem>
+        <SelectItem value="february">February</SelectItem>
+        <SelectItem value="march">March</SelectItem>
+      </SelectContent>
+    </Select>
+
+  </div>
+
+</CardHeader>
 
     <CardContent className="space-y-3">
 
