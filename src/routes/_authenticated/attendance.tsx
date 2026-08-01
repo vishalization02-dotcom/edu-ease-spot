@@ -13,6 +13,8 @@ import { fetchAttendance, fetchClasses, fetchStudents, todayISO } from "@/lib/cl
 import { ClassSelector } from "@/components/class-selector";
 
 export const Route = createFileRoute("/_authenticated/attendance")({
+  validateSearch: (search: Record<string, unknown>): { classId?: string } =>
+    typeof search.classId === "string" ? { classId: search.classId } : {},
   component: AttendancePage,
 });
 
@@ -21,12 +23,13 @@ function AttendancePage() {
   const [date, setDate] = useState(todayISO());
   const [marks, setMarks] = useState<Record<string, "present" | "absent">>({});
   const [saving, setSaving] = useState(false);
-  const [classId, setClassId] = useState<string | undefined>(undefined);
+  const { classId: classIdParam } = Route.useSearch();
+  const [classId, setClassId] = useState<string | undefined>(classIdParam);
 
   const classes = useQuery({ queryKey: ["classes"], queryFn: fetchClasses });
   useEffect(() => {
     if (!classId && classes.data && classes.data.length > 0) setClassId(classes.data[0].id);
-  }, [classes.data, classId]);
+  }, [classes.data, classId, classIdParam]);
 
   const students = useQuery({
     queryKey: ["students", "class", classId ?? ""],

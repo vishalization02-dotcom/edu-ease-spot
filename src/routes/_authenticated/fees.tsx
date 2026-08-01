@@ -14,18 +14,21 @@ import { currentMonth, fetchClasses, fetchFees, fetchStudents } from "@/lib/clas
 import { ClassSelector } from "@/components/class-selector";
 
 export const Route = createFileRoute("/_authenticated/fees")({
+  validateSearch: (search: Record<string, unknown>): { classId?: string } =>
+    typeof search.classId === "string" ? { classId: search.classId } : {},
   component: FeesPage,
 });
 
 function FeesPage() {
   const qc = useQueryClient();
   const [month, setMonth] = useState(currentMonth());
-  const [classId, setClassId] = useState<string | undefined>(undefined);
+  const { classId: classIdParam } = Route.useSearch();
+  const [classId, setClassId] = useState<string | undefined>(classIdParam);
 
   const classes = useQuery({ queryKey: ["classes"], queryFn: fetchClasses });
   useEffect(() => {
     if (!classId && classes.data && classes.data.length > 0) setClassId(classes.data[0].id);
-  }, [classes.data, classId]);
+  }, [classes.data, classId, classIdParam]);
 
   const students = useQuery({
     queryKey: ["students", "class", classId ?? ""],

@@ -1,7 +1,7 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Pencil, Trash2, BookOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, BookOpen, ArrowRight } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -14,7 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { supabase } from "@/integrations/supabase/client";
 import { fetchClasses, fetchStudents, type ClassRow } from "@/lib/classledger-data";
 
-export const Route = createFileRoute("/_authenticated/classes")({
+export const Route = createFileRoute("/_authenticated/classes/")({
   component: ClassesPage,
 });
 
@@ -71,10 +71,12 @@ function ClassesPage() {
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {(classes.data ?? []).map((c) => (
-            <Card key={c.id} className="p-5">
+            <Card key={c.id} className="p-5 transition-all hover:shadow-md hover:border-primary/40">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <div className="font-semibold truncate">{c.name}</div>
+                  <Link to="/classes/$id" params={{ id: c.id }} className="font-semibold truncate hover:text-primary block">
+                    {c.name}
+                  </Link>
                   {c.description && <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{c.description}</div>}
                 </div>
                 <div className="flex gap-1 shrink-0">
@@ -98,8 +100,13 @@ function ClassesPage() {
                   </AlertDialog>
                 </div>
               </div>
-              <div className="mt-4 text-sm text-muted-foreground">
-                <span className="font-semibold text-foreground">{counts.get(c.id) ?? 0}</span> student{(counts.get(c.id) ?? 0) === 1 ? "" : "s"}
+              <div className="mt-4 flex items-center justify-between gap-2">
+                <div className="text-sm text-muted-foreground">
+                  <span className="font-semibold text-foreground">{counts.get(c.id) ?? 0}</span> student{(counts.get(c.id) ?? 0) === 1 ? "" : "s"}
+                </div>
+                <Link to="/classes/$id" params={{ id: c.id }}>
+                  <Button size="sm" variant="secondary">View details <ArrowRight className="h-4 w-4 ml-1" /></Button>
+                </Link>
               </div>
             </Card>
           ))}

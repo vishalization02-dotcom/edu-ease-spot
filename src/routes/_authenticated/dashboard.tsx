@@ -10,6 +10,7 @@ import { currentMonth, fetchFees, fetchStudents, todayISO, fetchAttendance, fetc
 
 // chatGPT
 import AnalyticsCard from "@/components/dashboard/analytics-card";
+import { MonthComparison } from "@/components/dashboard/MonthComparison";
 import { Footer } from "@/components/dashboard/Footer";
 import { Activity } from "lucide-react";
 import { TeacherProgress } from "@/components/dashboard/TeacherProgress";
@@ -269,7 +270,8 @@ function DashboardPage() {
   </div>
 
   <div className="xl:col-span-3">
-    <AnalyticsCard />
+    <MonthComparison />
+    {/* <AnalyticsCard/> */}
   </div>
 </div>
 

@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useMemo } from "react";
-import { ArrowLeft, Users, CalendarCheck, AlertTriangle, IndianRupee, ClipboardCheck, Wallet, UserPlus, CalendarDays } from "lucide-react";
+import { ArrowLeft, Users, CalendarCheck, AlertTriangle, IndianRupee, ClipboardCheck, Wallet, UserPlus, CalendarDays, Check, X, HelpCircle } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -81,6 +81,19 @@ function ClassDashboardPage() {
     return m;
   }, [fees.data]);
 
+  const todayMap = useMemo(() => {
+    const m = new Map<string, "present" | "absent">();
+    (attendance.data ?? []).forEach((a) => m.set(a.student_id, a.status));
+    return m;
+  }, [attendance.data]);
+
+  const roster = students.data ?? [];
+  const presentList = roster.filter((s) => todayMap.get(s.id) === "present");
+  const absentList = roster.filter((s) => todayMap.get(s.id) === "absent");
+  const unmarkedList = roster.filter((s) => !todayMap.has(s.id));
+  const paidList = roster.filter((s) => feeStatusMap.get(s.id) === "paid");
+  const unpaidList = roster.filter((s) => feeStatusMap.get(s.id) !== "paid");
+
   if (!classes.isLoading && !cls) {
     return (
       <div className="max-w-3xl mx-auto">
@@ -111,9 +124,9 @@ function ClassDashboardPage() {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Action to="/students" icon={UserPlus} title="Manage Students" desc="View and edit students" />
-        <Action to="/attendance" icon={ClipboardCheck} title="Mark Attendance" desc="Record today's attendance" />
-        <Action to="/fees" icon={Wallet} title="Collect Fees" desc="Track monthly payments" />
+        <Action to="/students" classId={id} icon={UserPlus} title="Manage Students" desc="View and edit students" />
+        <Action to="/attendance" classId={id} icon={ClipboardCheck} title="Mark Attendance" desc="Record today's attendance" />
+        <Action to="/fees" classId={id} icon={Wallet} title="Collect Fees" desc="Track monthly payments" />
       </div>
 
       <Card className="p-6">
@@ -142,7 +155,7 @@ function ClassDashboardPage() {
           <div className="p-10 text-center">
             <div className="font-semibold">No students in this class yet</div>
             <p className="text-sm text-muted-foreground mt-1 mb-4">Add your first student to this class.</p>
-            <Link to="/students"><Button><UserPlus className="h-4 w-4 mr-1" />Add Student</Button></Link>
+            <Link to="/students" search={{ classId: id } as any}><Button><UserPlus className="h-4 w-4 mr-1" />Add Student</Button></Link>
           </div>
         ) : (
           <Table>
@@ -187,6 +200,71 @@ function ClassDashboardPage() {
           </Table>
         )}
       </Card>
+
+      {totalStudents > 0 && (
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <Card className="p-5">
+            <h2 className="text-lg font-semibold">Today's attendance</h2>
+            <p className="text-xs text-muted-foreground mb-4">{today}</p>
+            <div className="space-y-4">
+              <NameList title="Present" tone="success" icon={Check} students={presentList} />
+              <NameList title="Absent" tone="destructive" icon={X} students={absentList} />
+              <NameList title="Not marked yet" tone="muted" icon={HelpCircle} students={unmarkedList} />
+            </div>
+          </Card>
+
+          <Card className="p-5">
+            <h2 className="text-lg font-semibold">Fees · {monthLabel(month)}</h2>
+            <p className="text-xs text-muted-foreground mb-4">Who has paid this month</p>
+            <div className="space-y-4">
+              <NameList title="Paid" tone="success" icon={Check} students={paidList} showFee />
+              <NameList title="Pending" tone="destructive" icon={AlertTriangle} students={unpaidList} showFee />
+            </div>
+          </Card>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function NameList({
+  title,
+  tone,
+  icon: Icon,
+  students,
+  showFee,
+}: {
+  title: string;
+  tone: "success" | "destructive" | "muted";
+  icon: React.ElementType;
+  students: { id: string; student_name: string; monthly_fee: number }[];
+  showFee?: boolean;
+}) {
+  const chip =
+    tone === "success"
+      ? "bg-success/10 text-success"
+      : tone === "destructive"
+        ? "bg-destructive/10 text-destructive"
+        : "bg-muted text-muted-foreground";
+  return (
+    <div>
+      <div className="flex items-center gap-2 mb-2">
+        <span className={`h-6 w-6 rounded-md grid place-items-center ${chip}`}><Icon className="h-3.5 w-3.5" /></span>
+        <span className="text-sm font-medium">{title}</span>
+        <span className="text-xs text-muted-foreground">({students.length})</span>
+      </div>
+      {students.length === 0 ? (
+        <div className="text-xs text-muted-foreground pl-8">None</div>
+      ) : (
+        <ul className="pl-8 space-y-1">
+          {students.map((s) => (
+            <li key={s.id} className="text-sm flex items-center justify-between gap-2">
+              <Link to="/students/$id" params={{ id: s.id }} className="hover:text-primary truncate">{s.student_name}</Link>
+              {showFee && <span className="text-xs text-muted-foreground shrink-0">₹{Number(s.monthly_fee).toLocaleString()}</span>}
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
@@ -218,9 +296,9 @@ function Stat({ label, value, icon: Icon, tone }: { label: string; value: React.
   );
 }
 
-function Action({ to, icon: Icon, title, desc }: { to: string; icon: React.ElementType; title: string; desc: string }) {
+function Action({ to, classId, icon: Icon, title, desc }: { to: string; classId?: string; icon: React.ElementType; title: string; desc: string }) {
   return (
-    <Link to={to as any}>
+    <Link to={to as any} search={{ classId } as any}>
       <Card className="p-5 hover:shadow-md hover:border-primary/40 transition-all cursor-pointer h-full">
         <div className="flex items-center gap-3">
           <div className="h-12 w-12 rounded-xl bg-primary text-primary-foreground grid place-items-center shrink-0 shadow-sm">
