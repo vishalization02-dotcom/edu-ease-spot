@@ -1,15 +1,33 @@
+import { useMemo } from "react";
+import { useQuery } from "@tanstack/react-query";
 import {
   AlertTriangle,
   CalendarCheck,
+  Info,
   Sparkles,
   TrendingUp,
   UserPlus,
+  Wallet,
 } from "lucide-react";
 
 import { Card } from "@/components/ui/card";
+import {
+  currentMonth,
+  fetchAttendance,
+  fetchClasses,
+  fetchFees,
+  fetchStudents,
+  todayISO,
+} from "@/lib/classledger-data";
+import {
+  generateInsights,
+  type GeneratedInsight,
+  type InsightIcon,
+  type InsightPriority,
+} from "@/lib/insights";
 
 type Insight = {
-  id: number;
+  id: string;
   title: string;
   description: string;
   icon: React.ReactNode;
@@ -17,6 +35,40 @@ type Insight = {
   badge: string;
   badgeColor: string;
 };
+
+const ICON_MAP: Record<InsightIcon, typeof AlertTriangle> = {
+  alert: AlertTriangle,
+  attendance: CalendarCheck,
+  growth: TrendingUp,
+  money: Wallet,
+  student: UserPlus,
+  info: Info,
+};
+
+const PRIORITY_STYLES: Record<InsightPriority, { text: string; badge: string; iconBg: string }> = {
+  High: { text: "text-red-400", badge: "bg-red-500/15 text-red-400", iconBg: "bg-red-500/15" },
+  Medium: { text: "text-amber-400", badge: "bg-amber-500/15 text-amber-400", iconBg: "bg-amber-500/15" },
+  Good: {
+    text: "text-emerald-400",
+    badge: "bg-emerald-500/15 text-emerald-400",
+    iconBg: "bg-emerald-500/15",
+  },
+  New: { text: "text-sky-400", badge: "bg-sky-500/15 text-sky-400", iconBg: "bg-sky-500/15" },
+};
+
+function toInsight(generated: GeneratedInsight): Insight {
+  const styles = PRIORITY_STYLES[generated.priority];
+  const Icon = ICON_MAP[generated.icon];
+  return {
+    id: generated.id,
+    title: generated.title,
+    description: generated.description,
+    badge: generated.priority,
+    badgeColor: styles.badge,
+    iconBg: styles.iconBg,
+    icon: <Icon className={`h-5 w-5 ${styles.text}`} />,
+  };
+}
 
 function InsightRow({
   title,
@@ -27,87 +79,129 @@ function InsightRow({
   badgeColor,
 }: Insight) {
   return (
-    <div className="flex items-center gap-3 rounded-xl border border-border/60 bg-card/40 px-4 py-3 transition-all duration-200 hover:bg-card hover:border-primary/30">
+    <div className="flex items-start gap-4 rounded-xl border border-border/60 bg-card/40 px-4 py-3 transition-all duration-200 hover:bg-card hover:border-primary/30">
       <div
-        className={`flex h-9 w-9 shrink- items-center justify-center rounded-lg ${iconBg}`}
+        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBg}`}
       >
         {icon}
       </div>
 
-      <div className="min-w-0 flex-1">
-        <h3 className="font-semibold">{title}</h3>
+      <div className="flex-1 min-w-0">
+  <div className="flex items-center justify-between">
+    <h3 className="font-semibold">
+      {title}
+    </h3>
 
-        <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-          {description}
-        </p>
-      </div>
+    <span
+      className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeColor}`}
+    >
+      {badge}
+    </span>
+  </div>
 
-      <span
-        className={`shrink-0 rounded-full px-2.5 py-1 text-xs font-medium ${badgeColor}`}
-      >
-        {badge}
-      </span>
+  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
+    {description}
+  </p>
+</div>
     </div>
   );
 }
 
 export function SmartInsights() {
-  // Temporary static insights
-  // Later these will come from Supabase.
+  const today = todayISO();
+  const month = currentMonth();
 
-  const insights: Insight[] = [
-    {
-      id: 1,
-      title: "Attendance Alert",
-      description: "Rahul has missed the last 3 consecutive classes.",
-      badge: "High",
-      badgeColor: "bg-red-500/15 text-red-400",
-      icon: <AlertTriangle className="h-5 w-5 text-red-400" />,
-      iconBg: "bg-red-500/15",
-    },
+  const { data, isLoading } = useQuery({
+    queryKey: ["insights", today, month],
+    staleTime: 60_000,
+    queryFn: async () => {
+      const dateFrom = (() => {
+        const d = new Date(`${today}T00:00:00`);
+        d.setDate(d.getDate() - 30);
+        return d.toISOString().slice(0, 10);
+      })();
 
-    {
-      id: 2,
-      title: "Perfect Attendance",
-      description: "2 batches achieved 100% attendance today.",
-      badge: "Good",
-      badgeColor: "bg-emerald-500/15 text-emerald-400",
-      icon: <CalendarCheck className="h-5 w-5 text-emerald-400" />,
-      iconBg: "bg-emerald-500/15",
-    },
+      const [classes, students, attendance, fees] = await Promise.all([
+        fetchClasses(),
+        fetchStudents(),
+        fetchAttendance({ dateFrom }),
+        fetchFees({ month }),
+      ]);
 
-    {
-      id: 3,
-      title: "Fastest Growing Batch",
-      description: "Science Batch gained 3 new students this month.",
-      badge: "New",
-      badgeColor: "bg-sky-500/15 text-sky-400",
-      icon: <TrendingUp className="h-5 w-5 text-sky-400" />,
-      iconBg: "bg-sky-500/15",
+      return { classes, students, attendance, fees };
     },
-  ];
+  });
+
+  const insights: Insight[] = useMemo(() => {
+    if (!data) return [];
+    return generateInsights({ today, month, ...data }).map(toInsight);
+  }, [data, today, month]);
+
+  const summary = useMemo(() => {
+    if (!data) return null;
+    const totalStudents = data.students.length;
+    const todayRows = data.attendance.filter((a) => a.date === today);
+    const todayRate = todayRows.length
+      ? Math.round(
+          (todayRows.filter((a) => a.status === "present").length /
+            todayRows.length) *
+            100
+        )
+      : 0;
+    const collected = data.fees
+      .filter((f) => f.status === "paid")
+      .reduce((sum, f) => sum + Number(f.amount || 0), 0);
+    return { totalStudents, todayRate, collected };
+  }, [data, today]);
 
   return (
-    <Card className="p-6">
-      <div className="mb-6 flex items-start gap-3">
+    <Card className="flex h-full flex-col p-6">
+      <div className="mb-5 flex items-start gap-3">
         <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
           <Sparkles className="h-5 w-5 text-primary" />
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold">Today's Insights</h2>
+          <h2 className="text-xl font-semibold">
+            Today's Insights
+          </h2>
 
           <p className="text-sm text-muted-foreground">
-            Powered by your classroom activity.
+           Powered by your classroom activity.
           </p>
         </div>
       </div>
 
-      <div className="space-y-3">
-        {insights.map((insight) => (
+      <div className="flex flex-1 flex-col gap-3">
+        {isLoading &&
+          [0, 1, 2].map((i) => (
+            <div
+              key={i}
+              className="h-[86px] animate-pulse rounded-xl border border-border/60 bg-card/40"
+            />
+          ))}
+        {!isLoading &&
+          insights.map((insight) => (
           <InsightRow key={insight.id} {...insight} />
         ))}
       </div>
+
+      {!isLoading && summary && (
+        <div className="mt-5 grid grid-cols-3 gap-3 rounded-2xl border border-border/60 bg-card/40 p-4">
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Students</p>
+            <p className="mt-1 text-lg font-semibold">{summary.totalStudents}</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Attendance</p>
+            <p className="mt-1 text-lg font-semibold">{summary.todayRate}%</p>
+          </div>
+          <div className="text-center">
+            <p className="text-xs text-muted-foreground">Collected</p>
+            <p className="mt-1 text-lg font-semibold">₹{Math.round(summary.collected).toLocaleString("en-IN")}</p>
+          </div>
+        </div>
+      )}
     </Card>
   );
 }
