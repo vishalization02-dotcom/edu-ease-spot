@@ -14,7 +14,8 @@ import { MonthComparison } from "@/components/dashboard/MonthComparison";
 import { Footer } from "@/components/dashboard/Footer";
 import { Activity } from "lucide-react";
 import { TeacherProgress } from "@/components/dashboard/TeacherProgress";
-import { NoticeBoard } from "@/components/dashboard/NoticeBoard";
+// import { NoticeBoard } from "@/components/dashboard/NoticeBoard";
+import { ClassLedgerAI } from "@/components/dashboard/ClassLedgerAI";
 import { AchievementsCard } from "@/components/dashboard/AchievementsCard";
 import { SmartInsights } from "@/components/dashboard/SmartInsights";
 import { Moon, Sun } from "lucide-react";
@@ -254,14 +255,6 @@ function DashboardPage() {
 
 </div>
 
-{/* 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-        <StatCard label="Total Students" value={totalStudents} icon={Users} tone="primary" emoji="👨‍🎓" />
-        <StatCard label={`Fees Collected (${monthLabel(month)})`} value={`₹${collected.toLocaleString()}`} icon={IndianRupee} tone="success" emoji="💰" />
-        <StatCard label="Pending Fees" value={`₹${pendingAmount.toLocaleString()}`} icon={AlertTriangle} tone="warning" emoji="⚠️" />
-        <StatCard label="Today's Attendance" value={`${todayPresent} present · ${todayAbsent} absent`} icon={CalendarCheck} tone="primary" emoji="📅" />
-      </div> */}
-
       <QuickActions />
 {/* chatGPT */}
 <div className="grid grid-cols-1 gap-6 xl:grid-cols-5">
@@ -393,7 +386,8 @@ const attendancePercentage =
     {/* <AchievementsCard /> */}
     <TeacherProgress />
 
-    <NoticeBoard />
+    {/* <NoticeBoard /> */}
+    <ClassLedgerAI />
 
   </div>
 
