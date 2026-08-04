@@ -137,11 +137,10 @@ export function TeachingLegacy() {
       overflow-hidden
       rounded-[24px]
       border
-      border-rose-100/60
+      border-slate-200/60
       dark:border-white/5
       bg-gradient-to-br
-      from-rose-50
-      via-white
+      from-white
       to-slate-50
       dark:from-[#111827]
       dark:to-[#0f172a]
@@ -222,7 +221,8 @@ export function TeachingLegacy() {
         dark:bg-white/[0.02]
         px-3.5
         py-2.5
-        pr-20
+        pr-3.5
+        sm:pr-20
         "
       >
         <div className="flex items-start gap-2">
@@ -230,7 +230,7 @@ export function TeachingLegacy() {
 
           <p
             className="
-            line-clamp-2
+            line-clamp-3
             text-[13px]
             font-medium
             italic
