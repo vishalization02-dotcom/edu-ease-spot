@@ -15,7 +15,8 @@ import { Footer } from "@/components/dashboard/Footer";
 import { Activity } from "lucide-react";
 import { TeacherProgress } from "@/components/dashboard/TeacherProgress";
 // import { NoticeBoard } from "@/components/dashboard/NoticeBoard";
-import { ClassLedgerAI } from "@/components/dashboard/ClassLedgerAI";
+// import { ClassLedgerAI } from "@/components/dashboard/ClassLedgerAI";
+import { TeachingLegacy } from "@/components/dashboard/TeachingLegacy";
 import { AchievementsCard } from "@/components/dashboard/AchievementsCard";
 import { SmartInsights } from "@/components/dashboard/SmartInsights";
 import { Moon, Sun } from "lucide-react";
@@ -387,7 +388,8 @@ const attendancePercentage =
     <TeacherProgress />
 
     {/* <NoticeBoard /> */}
-    <ClassLedgerAI />
+    {/* <ClassLedgerAI /> */}
+       <TeachingLegacy />
 
   </div>
 
