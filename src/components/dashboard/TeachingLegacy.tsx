@@ -10,22 +10,22 @@ type StatTone = "rose" | "violet" | "emerald" | "amber";
 const TONES: Record<StatTone, { icon: string; value: string }> = {
   rose: {
     icon: "bg-[#ff5c7a] text-white",
-    value: "text-[#ff8ea5]",
+    value: "text-rose-600 dark:text-[#ff8ea5]",
   },
 
   violet: {
     icon: "bg-[#8b6bf0] text-white",
-    value: "text-[#b98dff]",
+    value: "text-violet-600 dark:text-[#b98dff]",
   },
 
   emerald: {
     icon: "bg-[#22c58b] text-white",
-    value: "text-[#6cf5b5]",
+    value: "text-emerald-600 dark:text-[#6cf5b5]",
   },
 
   amber: {
     icon: "bg-[#c4791f] text-white",
-    value: "text-[#ffc34d]",
+    value: "text-amber-600 dark:text-[#ffc34d]",
   },
 };
 
@@ -50,14 +50,17 @@ function LegacyStat({
       group
       rounded-[16px]
       border
-      border-white/5
-      bg-white/[0.02]
+      border-black/5
+      dark:border-white/5
+      bg-black/[0.02]
+      dark:bg-white/[0.02]
       p-3.5
       transition-all
       duration-300
       hover:-translate-y-[2px]
       hover:border-primary/20
-      hover:bg-white/[0.035]
+      hover:bg-black/[0.035]
+      dark:hover:bg-white/[0.035]
       "
     >
       <div
@@ -66,7 +69,7 @@ function LegacyStat({
         <Icon className="h-4 w-4" />
       </div>
 
-      <p className="mb-1 text-[12px] font-medium text-slate-400">
+      <p className="mb-1 text-[12px] font-medium text-slate-500 dark:text-slate-400">
         {label}
       </p>
 
@@ -83,7 +86,7 @@ function LegacyStat({
       </p>
 
       {caption && (
-        <p className="mt-1 text-[12px] leading-relaxed text-slate-400">
+        <p className="mt-1 text-[12px] leading-relaxed text-slate-500 dark:text-slate-400">
           {caption}
         </p>
       )}
@@ -96,7 +99,7 @@ function TeacherIllustration() {
     <svg
       viewBox="0 0 100 100"
       aria-hidden="true"
-      className="pointer-events-none absolute bottom-0 right-2 hidden h-[68px] w-[68px] text-rose-400/25 sm:block"
+      className="pointer-events-none absolute bottom-0 right-2 hidden h-[68px] w-[68px] text-rose-500/15 dark:text-rose-400/25 sm:block"
       fill="none"
       stroke="currentColor"
       strokeWidth="1.6"
@@ -134,10 +137,14 @@ export function TeachingLegacy() {
       overflow-hidden
       rounded-[24px]
       border
-      border-white/5
+      border-rose-100/60
+      dark:border-white/5
       bg-gradient-to-br
-      from-[#111827]
-      to-[#0f172a]
+      from-rose-50
+      via-white
+      to-slate-50
+      dark:from-[#111827]
+      dark:to-[#0f172a]
       p-4
       shadow-[0_0_30px_rgba(255,90,120,0.04)]
       "
@@ -161,10 +168,10 @@ export function TeachingLegacy() {
           "
         >
           <span className="absolute inset-0 rounded-full bg-rose-500/20 blur-md" aria-hidden="true" />
-          <Heart className="relative h-4 w-4 text-rose-400" />
+          <Heart className="relative h-4 w-4 text-rose-500 dark:text-rose-400" />
         </div>
         <div className="min-w-0">
-          <h2 className="text-[22px] font-bold leading-tight tracking-tight text-[#ff6b85]">
+          <h2 className="text-[22px] font-bold leading-tight tracking-tight text-rose-600 dark:text-[#ff6b85]">
             Teaching Legacy
           </h2>
           <p className="text-[13px] leading-snug text-muted-foreground">
@@ -173,10 +180,10 @@ export function TeachingLegacy() {
               : "Every number tells the story of your teaching journey."}
           </p>
         </div>
-        <Sparkles className="ml-auto h-10 w-8 shrink-0 animate-pulse text-rose-300/70" aria-hidden="true" />
+        <Sparkles className="ml-auto h-4 w-4 shrink-0 animate-pulse text-rose-400/70 dark:text-rose-300/70" aria-hidden="true" />
       </div>
 
-      <div className="grid flex-1 grid-cols-2 gap-1">
+      <div className="grid flex-1 grid-cols-2 gap-2.5">
         <LegacyStat
           icon={IndianRupee}
           tone="rose"
@@ -211,14 +218,15 @@ export function TeachingLegacy() {
         relative
         mt-3
         rounded-2xl
-        bg-white/[0.02]
+        bg-black/[0.02]
+        dark:bg-white/[0.02]
         px-3.5
         py-2.5
         pr-20
         "
       >
         <div className="flex items-start gap-2">
-          <Quote className="mt-0.5 h-4 w-4 shrink-0 fill-rose-400 text-rose-400" />
+          <Quote className="mt-0.5 h-4 w-4 shrink-0 fill-rose-500 text-rose-500 dark:fill-rose-400 dark:text-rose-400" />
 
           <p
             className="
@@ -227,7 +235,8 @@ export function TeachingLegacy() {
             font-medium
             italic
             leading-relaxed
-            text-[#ff9ab0]
+            text-rose-600
+            dark:text-[#ff9ab0]
             "
           >
             {quoteOfTheDay()}
