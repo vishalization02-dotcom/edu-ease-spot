@@ -1,13 +1,25 @@
+import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Card } from "@/components/ui/card";
 import { Trophy, Gift, ChevronRight } from "lucide-react";
+import { RewardsDialog } from "@/components/dashboard/RewardsDialog";
+import { EMPTY_XP, ensureLevel10Reward, teacherXpQueryOptions } from "@/lib/teacher-xp";
 
 export function TeacherProgress() {
-  const level = 3;
-  const currentXP = 870;
-  const nextLevelXP = 1000;
+  const [open, setOpen] = useState(false);
+  const { data } = useQuery(teacherXpQueryOptions);
+  const xp = data ?? EMPTY_XP;
 
-  const progress = (currentXP / nextLevelXP) * 100;
-  const xpRemaining = nextLevelXP - currentXP;
+  useEffect(() => {
+    if (xp.level >= 10) void ensureLevel10Reward(xp.level);
+  }, [xp.level]);
+
+  const level = xp.level;
+  const currentXP = xp.totalXp;
+  const nextLevelXP = xp.xpForNextLevel;
+
+  const progress = xp.progress;
+  const xpRemaining = xp.xpRemaining;
 
   return (
     <Card className="p-6">
@@ -49,7 +61,7 @@ export function TeacherProgress() {
     <div className="mb-2 flex items-center justify-between">
 
       <span className="text-sm font-medium text-muted-foreground">
-        Your XP Progress
+        {xp.title}
       </span>
 
       <span className="text-sm font-semibold">
@@ -76,10 +88,19 @@ export function TeacherProgress() {
     </div>
 
     <p className="mt-3 text-sm text-muted-foreground">
-      <span className="font-semibold text-foreground">
-        {xpRemaining} XP
-      </span>{" "}
-      to reach <span className="font-semibold">Level {level + 1}</span>
+      {xp.isMaxLevel ? (
+        <>
+          <span className="font-semibold text-foreground">Max level reached</span>{" "}
+          — you are a <span className="font-semibold">Teaching Icon</span>
+        </>
+      ) : (
+        <>
+          <span className="font-semibold text-foreground">
+            {xpRemaining} XP
+          </span>{" "}
+          to reach <span className="font-semibold">Level {level + 1}</span>
+        </>
+      )}
     </p>
 
   </div>
@@ -103,11 +124,13 @@ export function TeacherProgress() {
         </div>
 
         <h3 className="mt-1 text-lg font-semibold">
-          🎁 1 Month FREE Pro
+          {xp.nextReward?.name ?? "🎁 1 Month FREE ClassLedger Pro"}
         </h3>
 
         <p className="text-sm text-muted-foreground">
-          Reach Level 10 to unlock
+          {xp.nextReward
+            ? `Reach Level ${xp.nextReward.level} to unlock`
+            : "All rewards unlocked"}
         </p>
 
       </div>
@@ -120,21 +143,17 @@ export function TeacherProgress() {
 
       {/* Footer */}
 
-      {/* <button className="mt-6 flex items-center gap-2 text-sm font-medium text-violet-400 transition-all hover:gap-3">
-
-        View All Rewards
-
-        <ChevronRight className="h-4 w-4" />
-
-      </button> */}
       <div className=" mt-5 flex justify-center">
   <button
+    onClick={() => setOpen(true)}
     className="group flex items-center gap-2 text-x font-semibold text-violet-400 transition-all duration-300 hover:text-violet-300"
   >
     View All Rewards
     <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
   </button>
 </div>
+
+      <RewardsDialog open={open} onOpenChange={setOpen} xp={xp} />
 
     </Card>
   );
