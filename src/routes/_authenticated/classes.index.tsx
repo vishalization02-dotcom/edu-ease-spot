@@ -13,6 +13,8 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, Dialog
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchClasses, fetchStudents, type ClassRow } from "@/lib/classledger-data";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/classes/")({
   component: ClassesPage,
@@ -37,17 +39,13 @@ function ClassesPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Classes</h1>
-          <p className="text-sm text-muted-foreground">Group students into classes or batches.</p>
-        </div>
+    <div className="space-y-5 max-w-5xl mx-auto animate-fade-in">
+      <PageHeader icon={BookOpen} title="Classes" description="Group students into classes or batches.">
         <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
           <DialogTrigger asChild>
-            <Button className="h-11"><Plus className="h-4 w-4 mr-1" />Add Class</Button>
+            <Button><Plus className="h-4 w-4" />Add Class</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-md">
+          <DialogContent className="max-w-md rounded-2xl">
             <DialogHeader><DialogTitle>{editing ? "Edit Class" : "Add Class"}</DialogTitle></DialogHeader>
             <ClassForm
               row={editing}
@@ -55,23 +53,27 @@ function ClassesPage() {
             />
           </DialogContent>
         </Dialog>
-      </div>
+      </PageHeader>
 
       {classes.isLoading ? (
         <div className="text-sm text-muted-foreground">Loading…</div>
       ) : (classes.data ?? []).length === 0 ? (
-        <Card className="p-10 text-center">
-          <BookOpen className="h-8 w-8 text-muted-foreground mx-auto mb-3" />
-          <div className="font-semibold text-lg">No classes created yet.</div>
-          <div className="text-sm text-muted-foreground mt-1 mb-5">Create your first class to start adding students.</div>
-          <Button className="h-11" onClick={() => { setEditing(null); setOpen(true); }}>
-            <Plus className="h-4 w-4 mr-1" />Create Your First Class
-          </Button>
+        <Card>
+          <EmptyState
+            icon={BookOpen}
+            title="No classes created yet."
+            description="Create your first class to start adding students."
+            action={
+              <Button onClick={() => { setEditing(null); setOpen(true); }}>
+                <Plus className="h-4 w-4" />Create Your First Class
+              </Button>
+            }
+          />
         </Card>
       ) : (
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {(classes.data ?? []).map((c) => (
-            <Card key={c.id} className="p-5 transition-all hover:shadow-md hover:border-primary/40">
+            <Card key={c.id} className="p-5 hover-lift hover:border-primary/40">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
                   <Link to="/classes/$id" params={{ id: c.id }} className="font-semibold truncate hover:text-primary block">
@@ -79,13 +81,13 @@ function ClassesPage() {
                   </Link>
                   {c.description && <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{c.description}</div>}
                 </div>
-                <div className="flex gap-1 shrink-0">
-                  <Button size="icon" variant="ghost" onClick={() => { setEditing(c); setOpen(true); }}>
+                <div className="flex shrink-0 gap-1">
+                  <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => { setEditing(c); setOpen(true); }}>
                     <Pencil className="h-4 w-4" />
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="icon" variant="ghost" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                      <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
@@ -140,10 +142,10 @@ function ClassForm({ row, onSaved }: { row: ClassRow | null; onSaved: () => void
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
-      <div><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Class 10 Science" /></div>
-      <div><Label>Description (optional)</Label><Textarea rows={2} value={desc} onChange={(e) => setDesc(e.target.value)} /></div>
+      <div className="space-y-1.5"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Class 10 Science" /></div>
+      <div className="space-y-1.5"><Label>Description (optional)</Label><Textarea rows={2} value={desc} onChange={(e) => setDesc(e.target.value)} /></div>
       <DialogFooter>
-        <Button type="submit" disabled={saving} className="w-full h-11">{saving ? "Saving…" : row ? "Save changes" : "Create class"}</Button>
+        <Button type="submit" size="lg" disabled={saving} className="w-full">{saving ? "Saving…" : row ? "Save changes" : "Create class"}</Button>
       </DialogFooter>
     </form>
   );

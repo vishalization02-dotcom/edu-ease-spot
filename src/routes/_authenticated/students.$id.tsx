@@ -51,24 +51,24 @@ function StudentDetail() {
   const cur = (fees.data ?? []).find((f) => f.month === currentMonth());
 
   return (
-    <div className="space-y-5 max-w-4xl mx-auto">
+    <div className="space-y-5 max-w-4xl mx-auto animate-fade-in">
       <div className="flex items-center gap-3">
-        <Link to="/students"><Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4 mr-1" />Students</Button></Link>
+        <Link to="/students"><Button variant="ghost" size="sm"><ArrowLeft className="h-4 w-4" />Students</Button></Link>
       </div>
 
       <Card className="p-6">
-        <div className="flex items-start gap-4">
-          <div className="h-14 w-14 rounded-xl bg-primary/10 text-primary grid place-items-center">
+        <div className="flex flex-wrap items-start gap-4">
+          <div className="grid h-14 w-14 shrink-0 place-items-center rounded-2xl bg-primary/10 text-primary glow-primary">
             <User className="h-7 w-7" />
           </div>
-          <div className="flex-1">
-            <h1 className="text-2xl font-semibold">{s.student_name}</h1>
-            <div className="text-sm text-muted-foreground flex items-center gap-2 mt-1">
+          <div className="min-w-0 flex-1">
+            <h1 className="truncate text-2xl font-semibold tracking-tight">{s.student_name}</h1>
+            <div className="mt-1 flex items-center gap-2 text-sm text-muted-foreground">
               <GraduationCap className="h-4 w-4" /> {s.course}
             </div>
           </div>
           <div className="text-right">
-            <div className="text-xs text-muted-foreground">Monthly fee</div>
+            <div className="text-xs font-medium text-muted-foreground">Monthly fee</div>
             <div className="text-xl font-semibold">₹{Number(s.monthly_fee).toLocaleString()}</div>
           </div>
         </div>
@@ -76,7 +76,7 @@ function StudentDetail() {
 
       <div className="grid md:grid-cols-2 gap-4">
         <Card className="p-5">
-          <h2 className="font-semibold mb-3">Parent</h2>
+          <h2 className="mb-3 text-base font-semibold tracking-tight">Parent</h2>
           <div className="text-sm space-y-1">
             <div><span className="text-muted-foreground">Name:</span> {s.parent_name || "—"}</div>
             <div className="flex items-center gap-2"><Phone className="h-3.5 w-3.5 text-muted-foreground" />{s.parent_phone || "—"}</div>
@@ -86,20 +86,20 @@ function StudentDetail() {
         </Card>
 
         <Card className="p-5">
-          <h2 className="font-semibold mb-3">Attendance Summary</h2>
+          <h2 className="mb-3 text-base font-semibold tracking-tight">Attendance Summary</h2>
           <div className="grid grid-cols-3 gap-2 text-center">
-            <div><div className="text-2xl font-semibold text-success">{present}</div><div className="text-xs text-muted-foreground">Present</div></div>
-            <div><div className="text-2xl font-semibold text-destructive">{absent}</div><div className="text-xs text-muted-foreground">Absent</div></div>
-            <div><div className="text-2xl font-semibold text-primary">{pct}%</div><div className="text-xs text-muted-foreground">Rate</div></div>
+            <div className="rounded-xl bg-success/5 py-3"><div className="text-2xl font-semibold text-success">{present}</div><div className="text-xs font-medium text-muted-foreground">Present</div></div>
+            <div className="rounded-xl bg-destructive/5 py-3"><div className="text-2xl font-semibold text-destructive">{absent}</div><div className="text-xs font-medium text-muted-foreground">Absent</div></div>
+            <div className="rounded-xl bg-primary/5 py-3"><div className="text-2xl font-semibold text-primary">{pct}%</div><div className="text-xs font-medium text-muted-foreground">Rate</div></div>
           </div>
         </Card>
       </div>
 
       <Card className="p-5">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="font-semibold">Current Month</h2>
+          <h2 className="text-base font-semibold tracking-tight">Current Month</h2>
           {cur?.status === "paid" ? (
-            <Badge className="bg-success text-success-foreground">Paid</Badge>
+            <Badge variant="success">Paid</Badge>
           ) : (
             <Badge variant="destructive">Pending</Badge>
           )}
@@ -112,16 +112,16 @@ function StudentDetail() {
       </Card>
 
       <Card className="p-5">
-        <h2 className="font-semibold mb-3">Fee History</h2>
+        <h2 className="mb-3 text-base font-semibold tracking-tight">Fee History</h2>
         {(fees.data ?? []).length === 0 ? (
           <div className="text-sm text-muted-foreground">No fee records yet.</div>
         ) : (
-          <ul className="divide-y">
+          <ul className="divide-y divide-border/60">
             {(fees.data ?? []).map((f) => (
-              <li key={f.id} className="py-2 flex items-center justify-between text-sm">
-                <span>{f.month}</span>
+              <li key={f.id} className="flex items-center justify-between gap-3 py-2.5 text-sm">
+                <span className="font-medium">{f.month}</span>
                 <span className="text-muted-foreground">₹{Number(f.amount).toLocaleString()}</span>
-                {f.status === "paid" ? <Badge className="bg-success text-success-foreground">Paid</Badge> : <Badge variant="destructive">Pending</Badge>}
+                {f.status === "paid" ? <Badge variant="success">Paid</Badge> : <Badge variant="destructive">Pending</Badge>}
               </li>
             ))}
           </ul>
@@ -129,15 +129,15 @@ function StudentDetail() {
       </Card>
 
       <Card className="p-5">
-        <h2 className="font-semibold mb-3">Recent Attendance</h2>
+        <h2 className="mb-3 text-base font-semibold tracking-tight">Recent Attendance</h2>
         {att.length === 0 ? (
           <div className="text-sm text-muted-foreground">No attendance recorded yet.</div>
         ) : (
-          <ul className="divide-y">
+          <ul className="divide-y divide-border/60">
             {att.slice(0, 15).map((a) => (
-              <li key={a.id} className="py-2 flex items-center justify-between text-sm">
-                <span>{a.date}</span>
-                {a.status === "present" ? <Badge className="bg-success text-success-foreground">Present</Badge> : <Badge variant="destructive">Absent</Badge>}
+              <li key={a.id} className="flex items-center justify-between py-2.5 text-sm">
+                <span className="font-medium">{a.date}</span>
+                {a.status === "present" ? <Badge variant="success">Present</Badge> : <Badge variant="destructive">Absent</Badge>}
               </li>
             ))}
           </ul>

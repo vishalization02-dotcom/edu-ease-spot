@@ -1,7 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Pencil, Trash2 } from "lucide-react";
+import { Plus, Search, Pencil, Trash2, Users, BookOpen } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { currentMonth, fetchAttendance, fetchClasses, fetchFees, fetchStudents, todayISO, type ClassRow, type Student } from "@/lib/classledger-data";
 import { ClassSelector } from "@/components/class-selector";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/students")({
   validateSearch: (search: Record<string, unknown>): { classId?: string } =>
@@ -98,19 +100,14 @@ function StudentsPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-6xl mx-auto">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Students</h1>
-          <p className="text-sm text-muted-foreground">Add, edit, and search your learners.</p>
-        </div>
-        <div className="flex items-center gap-2 flex-wrap">
+    <div className="space-y-5 max-w-6xl mx-auto animate-fade-in">
+      <PageHeader icon={Users} title="Students" description="Add, edit, and search your learners.">
           <ClassSelector classes={classes.data ?? []} value={classId} onChange={setClassId} placeholder="Select class" />
           <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
           <DialogTrigger asChild>
-            <Button className="h-11" disabled={(classes.data ?? []).length === 0}><Plus className="h-4 w-4 mr-1" />Add Student</Button>
+            <Button disabled={(classes.data ?? []).length === 0}><Plus className="h-4 w-4" />Add Student</Button>
           </DialogTrigger>
-          <DialogContent className="max-w-lg">
+          <DialogContent className="max-w-lg rounded-2xl">
             <DialogHeader>
               <DialogTitle>{editing ? "Edit Student" : "Add Student"}</DialogTitle>
             </DialogHeader>
@@ -122,21 +119,27 @@ function StudentsPage() {
             />
           </DialogContent>
           </Dialog>
-        </div>
-      </div>
+      </PageHeader>
 
       {(classes.data ?? []).length === 0 ? (
-        <Card className="p-10 text-center">
-          <div className="font-semibold text-lg">No classes created yet.</div>
-          <div className="text-sm text-muted-foreground mt-1 mb-5">Please create a class before adding students.</div>
-          <Link to="/classes"><Button className="h-11"><Plus className="h-4 w-4 mr-1" />Create Class</Button></Link>
+        <Card>
+          <EmptyState
+            icon={BookOpen}
+            title="No classes created yet."
+            description="Please create a class before adding students."
+            action={
+              <Link to="/classes">
+                <Button><Plus className="h-4 w-4" />Create Class</Button>
+              </Link>
+            }
+          />
         </Card>
       ) : (
         <>
-        <Card className="p-4">
+        <Card className="p-3">
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, course, parent, phone…" className="pl-9 h-11" />
+          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, course, parent, phone…" className="pl-9 h-11 border-transparent bg-muted/40" />
         </div>
         </Card>
 
@@ -164,7 +167,7 @@ function StudentsPage() {
               const pct = st && st.total > 0 ? Math.round((st.present / st.total) * 100) : null;
               const feeStatus = feeMap.get(s.id) ?? "pending";
               return (
-                <TableRow key={s.id}>
+                <TableRow key={s.id} className="group">
                   <TableCell>
                     <Link to="/students/$id" params={{ id: s.id }} className="font-medium hover:text-primary">
                       {s.student_name}
@@ -182,13 +185,13 @@ function StudentsPage() {
                     )}
                   </TableCell>
                   <TableCell className="text-right">
-                    <div className="inline-flex gap-1">
-                      <Button size="icon" variant="ghost" onClick={() => { setEditing(s); setOpen(true); }}>
+                    <div className="inline-flex gap-1 opacity-70 transition-opacity group-hover:opacity-100">
+                        <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => { setEditing(s); setOpen(true); }}>
                         <Pencil className="h-4 w-4" />
                       </Button>
                       <AlertDialog>
                         <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                          <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
                         </AlertDialogTrigger>
                         <AlertDialogContent>
                           <AlertDialogHeader>
@@ -258,28 +261,28 @@ function StudentForm({ student, classes, defaultClassId, onSaved }: { student: S
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
-      <div>
+      <div className="space-y-1.5">
         <Label>Class</Label>
         <Select value={classId} onValueChange={setClassId}>
-          <SelectTrigger className="h-10"><SelectValue placeholder="Select class" /></SelectTrigger>
+          <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
           <SelectContent>
             {classes.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
           </SelectContent>
         </Select>
       </div>
-      <div><Label>Student name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+      <div className="space-y-1.5"><Label>Student name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Parent name</Label><Input value={parentName} onChange={(e) => setParentName(e.target.value)} /></div>
-        <div><Label>Parent phone</Label><Input value={parentPhone} inputMode="tel" onChange={(e) => setParentPhone(e.target.value)} /></div>
+        <div className="space-y-1.5"><Label>Parent name</Label><Input value={parentName} onChange={(e) => setParentName(e.target.value)} /></div>
+        <div className="space-y-1.5"><Label>Parent phone</Label><Input value={parentPhone} inputMode="tel" onChange={(e) => setParentPhone(e.target.value)} /></div>
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div><Label>Course / Class</Label><Input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="e.g. Guitar Beginner" /></div>
-        <div><Label>Monthly fee (₹)</Label><Input value={fee} onChange={(e) => setFee(e.target.value)} inputMode="decimal" /></div>
+        <div className="space-y-1.5"><Label>Course / Class</Label><Input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="e.g. Guitar Beginner" /></div>
+        <div className="space-y-1.5"><Label>Monthly fee (₹)</Label><Input value={fee} onChange={(e) => setFee(e.target.value)} inputMode="decimal" /></div>
       </div>
-      <div><Label>Joining date</Label><Input type="date" value={joining} onChange={(e) => setJoining(e.target.value)} /></div>
-      <div><Label>Notes (optional)</Label><Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+      <div className="space-y-1.5"><Label>Joining date</Label><Input type="date" value={joining} onChange={(e) => setJoining(e.target.value)} /></div>
+      <div className="space-y-1.5"><Label>Notes (optional)</Label><Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
       <DialogFooter>
-        <Button type="submit" disabled={saving} className="w-full h-11">{saving ? "Saving…" : student ? "Save changes" : "Add student"}</Button>
+        <Button type="submit" size="lg" disabled={saving} className="w-full">{saving ? "Saving…" : student ? "Save changes" : "Add student"}</Button>
       </DialogFooter>
     </form>
   );

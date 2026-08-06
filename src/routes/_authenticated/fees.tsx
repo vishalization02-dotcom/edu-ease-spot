@@ -3,6 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
 import { toast } from "sonner";
+import { Wallet, Users } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,6 +13,8 @@ import { Badge } from "@/components/ui/badge";
 import { supabase } from "@/integrations/supabase/client";
 import { currentMonth, fetchClasses, fetchFees, fetchStudents } from "@/lib/classledger-data";
 import { ClassSelector } from "@/components/class-selector";
+import { PageHeader } from "@/components/page-header";
+import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/fees")({
   validateSearch: (search: Record<string, unknown>): { classId?: string } =>
@@ -79,51 +82,50 @@ function FeesPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-5xl mx-auto">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div>
-          <h1 className="text-2xl font-semibold tracking-tight">Fees</h1>
-          <p className="text-sm text-muted-foreground">Track monthly fee collection.</p>
-        </div>
-        <div className="flex items-end gap-3 flex-wrap">
-          <div>
-            <Label className="text-xs">Class</Label>
-            <ClassSelector classes={classes.data ?? []} value={classId} onChange={setClassId} placeholder="Select class" className="h-10 w-[180px]" />
+    <div className="space-y-5 max-w-5xl mx-auto animate-fade-in">
+      <PageHeader icon={Wallet} title="Fees" description="Track monthly fee collection.">
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Class</Label>
+            <ClassSelector classes={classes.data ?? []} value={classId} onChange={setClassId} placeholder="Select class" className="w-[160px] sm:w-[180px]" />
           </div>
-          <div>
-            <Label className="text-xs">Month</Label>
-            <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="h-10 w-[180px]" />
+          <div className="space-y-1.5">
+            <Label className="text-xs text-muted-foreground">Month</Label>
+            <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-[160px] sm:w-[180px]" />
           </div>
-        </div>
-      </div>
+      </PageHeader>
 
       {(classes.data ?? []).length === 0 && (
-        <Card className="p-6 text-sm">
-          Create a class first. <Link to="/classes" className="text-primary font-medium">Go to Classes</Link>
+        <Card>
+          <EmptyState
+            icon={Users}
+            title="No classes yet"
+            description="Create a class before you can collect fees."
+            action={<Link to="/classes"><Button>Go to Classes</Button></Link>}
+          />
         </Card>
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <Card className="p-5"><div className="text-xs text-muted-foreground">Collected</div><div className="text-2xl font-semibold text-success mt-1">₹{totals.collected.toLocaleString()}</div></Card>
-        <Card className="p-5"><div className="text-xs text-muted-foreground">Pending</div><div className="text-2xl font-semibold text-destructive mt-1">₹{totals.pending.toLocaleString()}</div></Card>
+        <Card className="p-5 hover-lift"><div className="text-xs font-medium text-muted-foreground">Collected</div><div className="text-2xl font-semibold text-success mt-1">₹{totals.collected.toLocaleString()}</div></Card>
+        <Card className="p-5 hover-lift"><div className="text-xs font-medium text-muted-foreground">Pending</div><div className="text-2xl font-semibold text-destructive mt-1">₹{totals.pending.toLocaleString()}</div></Card>
       </div>
 
-      <Card className="divide-y">
+      <Card className="divide-y divide-border/60 overflow-hidden">
         {(students.data ?? []).length === 0 && (
-          <div className="p-8 text-center text-sm text-muted-foreground">No students yet.</div>
+          <EmptyState icon={Users} title="No students yet" description="Add students to this class to track their fees." />
         )}
         {(students.data ?? []).map((s) => {
           const f = feeMap.get(s.id);
           const status = f?.status ?? "pending";
           return (
-            <div key={s.id} className="p-4 flex items-center justify-between gap-3 flex-wrap">
-              <div>
-                <div className="font-medium">{s.student_name}</div>
+            <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-accent/30">
+              <div className="min-w-0">
+                <div className="truncate font-medium">{s.student_name}</div>
                 <div className="text-xs text-muted-foreground">{s.course} · ₹{Number(s.monthly_fee).toLocaleString()}/mo</div>
               </div>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2 sm:gap-3">
                 {status === "paid" ? (
-                  <Badge className="bg-success text-success-foreground">Paid{f?.payment_date ? ` · ${f.payment_date}` : ""}</Badge>
+                  <Badge variant="success">Paid{f?.payment_date ? ` · ${f.payment_date}` : ""}</Badge>
                 ) : (
                   <Badge variant="destructive">Pending</Badge>
                 )}

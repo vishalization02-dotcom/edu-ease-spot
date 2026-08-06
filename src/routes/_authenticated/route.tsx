@@ -60,17 +60,17 @@ useEffect(() => {
       <div className="min-h-screen flex w-full bg-background">
         <AppSidebar />
         <SidebarInset>
-          <header className="sticky top-0 z-20 flex h-16 items-center justify-between border-b bg-card px-6">
+          <header className="sticky top-0 z-20 flex h-16 items-center justify-between gap-3 border-b border-border/70 bg-card/80 px-3 backdrop-blur-xl md:px-6">
 
   {/* Left */}
 
-  <div className="flex items-center gap-3">
+  <div className="flex min-w-0 items-center gap-3">
 
     <SidebarTrigger />
 
-    <div className="h-6 w-px bg-border" />
+    <div className="hidden h-6 w-px bg-border sm:block" />
 
-    <h1 className="text-lg font-semibold">
+    <h1 className="truncate text-lg font-semibold tracking-tight">
       ClassLedger
     </h1>
 
@@ -78,14 +78,17 @@ useEffect(() => {
 
   {/* Right */}
 
-  <div className="flex items-center gap-3">
+  <div className="flex shrink-0 items-center gap-2 md:gap-3">
 
     {/* Notification */}
 
-    <button className="relative flex h-11 w-11 items-center justify-center rounded-xl border border-border/60 bg-card transition-all duration-300 hover:border-primary/40 hover:bg-card/80 hover:shadow-md">
-      <Bell className="h-5 w-5 text-muted-foreground" />
+    <button
+      aria-label="Notifications"
+      className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/70 bg-background/60 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 hover:text-primary"
+    >
+      <Bell className="h-[18px] w-[18px] text-muted-foreground" />
 
-      <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-red-500 text-[11px] font-bold text-white">
+      <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-card">
         3
       </span>
 
@@ -97,38 +100,38 @@ useEffect(() => {
 
       <DropdownMenuTrigger asChild>
 
-        <button className="group flex items-center gap-3 rounded-xl border border-border/60 bg-card px-3 py-2 transition-all duration-300 hover:border-primary/40 hover:bg-card/80 hover:shadow-md">
+        <button className="group flex h-10 items-center gap-2.5 rounded-xl border border-border/70 bg-background/60 px-2 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 md:px-3">
 
-          <div className="flex h-8 w-8 items-center justify-center rounded-full bg-violet-500/15 text-sm font-bold text-violet-400">
+          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
             {userName.charAt(0)}
           </div>
 
-          <div className="hidden text-left md:block">
+          <div className="hidden text-left leading-tight md:block">
 
-            <div className="text-sm font-semibold">
+            <div className="text-[13px] font-semibold">
               Hi, {userName}
             </div>
 
-            <div className="text-xs text-muted-foreground">
+            <div className="text-[11px] text-muted-foreground">
               Teacher
             </div>
 
           </div>
 
-          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+          <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 group-data-[state=open]:rotate-180" />
 
         </button>
 
       </DropdownMenuTrigger>
 
-      <DropdownMenuContent align="end" className="w-52">
+      <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5">
 
-        <DropdownMenuItem>
+        <DropdownMenuItem className="rounded-lg py-2">
           <User className="mr-2 h-4 w-4" />
           My Profile
         </DropdownMenuItem>
 
-        <DropdownMenuItem>
+        <DropdownMenuItem className="rounded-lg py-2">
           <Settings className="mr-2 h-4 w-4" />
           Settings
         </DropdownMenuItem>
@@ -139,7 +142,7 @@ useEffect(() => {
           onClick={async () => {
             await supabase.auth.signOut();
           }}
-          className="text-red-500"
+          className="rounded-lg py-2 text-destructive focus:text-destructive"
         >
           <LogOut className="mr-2 h-4 w-4" />
           Logout
@@ -152,7 +155,7 @@ useEffect(() => {
   </div>
 
 </header>
-          <main className="flex-1 p-4 md:p-6">
+          <main className="flex-1 p-4 md:p-6 lg:p-8">
             <Outlet />
           </main>
         </SidebarInset>

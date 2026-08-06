@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
+import { PageHeader } from "@/components/page-header";
+import { Settings as SettingsIcon } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -68,28 +70,25 @@ function SettingsPage() {
   }
 
   return (
-    <div className="space-y-5 max-w-2xl mx-auto">
-      <div>
-        <h1 className="text-2xl font-semibold tracking-tight">Settings</h1>
-        <p className="text-sm text-muted-foreground">Manage your teacher profile.</p>
-      </div>
+    <div className="space-y-5 max-w-2xl mx-auto animate-fade-in">
+      <PageHeader icon={SettingsIcon} title="Settings" description="Manage your teacher profile." />
 
       <Card className="p-6">
-        <h2 className="font-semibold mb-4">Profile</h2>
-        <form onSubmit={saveProfile} className="space-y-3">
-          <div><Label>Teacher name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div><Label>Institute name</Label><Input value={institute} onChange={(e) => setInstitute(e.target.value)} /></div>
-          <div><Label>Mobile number</Label><Input value={mobile} disabled /></div>
+        <h2 className="mb-4 text-base font-semibold tracking-tight">Profile</h2>
+        <form onSubmit={saveProfile} className="space-y-4">
+          <div className="space-y-1.5"><Label>Teacher name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Institute name</Label><Input value={institute} onChange={(e) => setInstitute(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Mobile number</Label><Input value={mobile} disabled /></div>
           <p className="text-xs text-muted-foreground">Mobile number is used to sign in and cannot be changed here.</p>
           <Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
         </form>
       </Card>
 
       <Card className="p-6">
-        <h2 className="font-semibold mb-4">Change password</h2>
-        <form onSubmit={changePassword} className="space-y-3">
-          <div><Label>New password</Label><Input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} /></div>
-          <div><Label>Confirm new password</Label><Input type="password" value={newPw2} onChange={(e) => setNewPw2(e.target.value)} /></div>
+        <h2 className="mb-4 text-base font-semibold tracking-tight">Change password</h2>
+        <form onSubmit={changePassword} className="space-y-4">
+          <div className="space-y-1.5"><Label>New password</Label><Input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} /></div>
+          <div className="space-y-1.5"><Label>Confirm new password</Label><Input type="password" value={newPw2} onChange={(e) => setNewPw2(e.target.value)} /></div>
           <Button type="submit" disabled={pwSaving}>{pwSaving ? "Updating…" : "Update password"}</Button>
         </form>
       </Card>

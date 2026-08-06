@@ -105,7 +105,8 @@ export function MonthComparison() {
         else if (inMonth(dateStr, prev)) bucket[day - 1].previous += 1;
       });
     }
- // cumulative for smoother comparison
+
+    // cumulative for smoother comparison
     let c = 0;
     let p = 0;
     const cumulative = bucket.map((row) => {
@@ -142,12 +143,13 @@ export function MonthComparison() {
     { key: "attendance", label: "Attendance" },
     { key: "students", label: "Students" },
   ];
- return (
+
+  return (
     <Card className="p-6 h-full flex flex-col">
       <div className="mb-4 flex items-start justify-between gap-3 flex-wrap">
         <div className="flex items-start gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-primary/10">
-            <BarChart3 className="h-5 w-5 text-primary" />
+          <div className="icon-tile">
+            <BarChart3 className="h-5 w-5" />
           </div>
           <div>
             <h2 className="text-xl font-semibold">Monthly Performance</h2>
@@ -170,10 +172,16 @@ export function MonthComparison() {
           ))}
         </div>
       </div>
- <div className="flex-1 min-h-[220px]">
+
+      <div className="flex-1 min-h-[220px]">
         <ResponsiveContainer width="100%" height="100%">
           <LineChart data={chartData} margin={{ top: 5, right: 10, left: 0, bottom: 0 }}>
-            <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" opacity={0.4} />
+            <CartesianGrid
+              strokeDasharray="4 6"
+              vertical={false}
+              stroke="var(--muted-foreground)"
+              opacity={0.18}
+            />
             <XAxis
               dataKey="day"
               stroke="var(--muted-foreground)"
@@ -190,33 +198,39 @@ export function MonthComparison() {
             />
             <Tooltip
               contentStyle={{
-                background: "var(--card)",
+                background: "var(--popover)",
                 border: "1px solid var(--border)",
-                borderRadius: 8,
+                borderRadius: 12,
+                boxShadow: "var(--shadow-card-hover)",
+                padding: "10px 12px",
                 fontSize: 12,
               }}
+              cursor={{ stroke: "var(--primary)", strokeOpacity: 0.25, strokeWidth: 2 }}
+              labelStyle={{ fontWeight: 600, marginBottom: 4 }}
               formatter={(value: number, name) => [format(value), name === "current" ? curLabel : prevLabel]}
               labelFormatter={(d) => `Day ${d}`}
             />
             <Legend
-              wrapperStyle={{ fontSize: 12 }}
+              wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
+              iconType="circle"
+              iconSize={8}
               formatter={(value) => (value === "current" ? curLabel : prevLabel)}
             />
             <Line
               type="monotone"
               dataKey="previous"
-              stroke="#94a3b8"
+              stroke="var(--muted-foreground)"
               strokeWidth={2.5}
               strokeDasharray="5 5"
-              dot={{ r: 3, fill: "#94a3b8" }}
+              dot={false}
               activeDot={{ r: 5 }}
             />
             <Line
               type="monotone"
               dataKey="current"
-              stroke="#3b82f6"
+              stroke="var(--primary)"
               strokeWidth={3}
-              dot={{ r: 3, fill: "#3b82f6" }}
+              dot={false}
               activeDot={{ r: 6 }}
             />
           </LineChart>
@@ -236,7 +250,7 @@ export function MonthComparison() {
           <div className="text-xs text-muted-foreground">Growth</div>
           <div
             className={`mt-1 flex items-center gap-1 text-lg font-semibold ${
-              positive ? "text-emerald-400" : "text-red-400"
+              positive ? "text-success" : "text-destructive"
             }`}
           >
             {positive ? <TrendingUp className="h-4 w-4" /> : <TrendingDown className="h-4 w-4" />}

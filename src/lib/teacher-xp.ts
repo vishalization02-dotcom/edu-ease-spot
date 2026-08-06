@@ -96,7 +96,7 @@ export const LEVELS: LevelInfo[] = [
   { level: 7, title: "Master Educator 🏆", minXp: 3200 },
   { level: 8, title: "Legend 💎", minXp: 4500 },
   { level: 9, title: "Hall of Fame 👑", minXp: 6000 },
-  { level: 10, title: "Teaching Icon ❤️", minXp: 8000 },
+  { level: 10, title: "Teaching Icon ❤️", minXp: 10000 },
 ];
 
 const REWARDS: Record<number, { name: string; description: string }> = {

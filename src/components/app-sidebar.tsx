@@ -39,31 +39,38 @@ export function AppSidebar() {
   }
 
   return (
-    <Sidebar collapsible="icon">
-      <SidebarHeader className="border-b">
-        <div className="flex items-center gap-2 p-2">
-          <div className="h-8 w-8 rounded-lg bg-primary text-primary-foreground grid place-items-center shrink-0">
+    <Sidebar collapsible="icon" className="transition-[width] duration-300 ease-in-out">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-2.5 p-2">
+          <div className="h-9 w-9 rounded-xl bg-primary text-primary-foreground grid place-items-center shrink-0 glow-primary">
             <GraduationCap className="h-5 w-5" />
           </div>
           {!collapsed && (
             <div className="flex flex-col leading-tight">
-              <span className="text-sm font-semibold">ClassLedger</span>
+              <span className="text-sm font-semibold tracking-tight">ClassLedger</span>
               <span className="text-[10px] text-muted-foreground">Teacher workspace</span>
             </div>
           )}
         </div>
       </SidebarHeader>
 
-      <SidebarContent>
+      <SidebarContent className="px-1 py-2">
         <SidebarGroup>
-          <SidebarGroupLabel>Menu</SidebarGroupLabel>
+          <SidebarGroupLabel className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground/70">
+            Menu
+          </SidebarGroupLabel>
           <SidebarGroupContent>
-            <SidebarMenu>
+            <SidebarMenu className="gap-1">
               {items.map((item) => {
                 const active = pathname === item.url || pathname.startsWith(item.url + "/");
                 return (
                   <SidebarMenuItem key={item.url}>
-                    <SidebarMenuButton asChild isActive={active} tooltip={item.title}>
+                    <SidebarMenuButton
+                      asChild
+                      isActive={active}
+                      tooltip={item.title}
+                      className="h-10 rounded-xl px-3 transition-all duration-200 data-[active=true]:bg-primary/12 data-[active=true]:font-semibold data-[active=true]:text-primary hover:bg-sidebar-accent [&>svg]:size-[18px]"
+                    >
                       <Link
                         to={item.url}
                         onClick={() => {
@@ -71,6 +78,7 @@ export function AppSidebar() {
                             setOpenMobile(false);
                             }
                           }}
+                          className="flex items-center gap-3"
                         >
                         <item.icon />
                         <span>{item.title}</span>

@@ -107,12 +107,12 @@ function ClassDashboardPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-6xl mx-auto">
+    <div className="space-y-6 max-w-6xl mx-auto animate-fade-in">
       <div>
         <Link to="/classes" className="inline-flex items-center text-sm text-muted-foreground hover:text-foreground mb-2">
           <ArrowLeft className="h-4 w-4 mr-1" />Back to Classes
         </Link>
-        <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">{cls?.name ?? "Class"}</h1>
+        <h1 className="text-2xl font-semibold tracking-tight md:text-3xl">{cls?.name ?? "Class"}</h1>
         {cls?.description && <p className="text-sm text-muted-foreground mt-1">{cls.description}</p>}
       </div>
 
@@ -132,11 +132,11 @@ function ClassDashboardPage() {
       <Card className="p-6">
         <div className="flex items-center justify-between mb-4 flex-wrap gap-2">
           <div>
-            <h2 className="text-lg font-semibold">Class Overview</h2>
+            <h2 className="text-base font-semibold tracking-tight">Class Overview</h2>
             <p className="text-xs text-muted-foreground">Fee collection this month & attendance over last 90 days</p>
           </div>
         </div>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-center">
+        <div className="grid grid-cols-2 gap-3 text-center md:grid-cols-4">
           <MiniStat label="Expected" value={`₹${expectedTotal.toLocaleString()}`} />
           <MiniStat label="Collected" value={`₹${collected.toLocaleString()}`} tone="success" />
           <MiniStat label="Pending" value={`₹${pending.toLocaleString()}`} tone="warning" />
@@ -187,7 +187,7 @@ function ClassDashboardPage() {
                     <TableCell>{pct == null ? <span className="text-muted-foreground text-xs">—</span> : `${pct}%`}</TableCell>
                     <TableCell>
                       {feeStatus === "paid" ? (
-                        <Badge className="bg-success text-success-foreground hover:bg-success/90">Paid</Badge>
+                        <Badge variant="success">Paid</Badge>
                       ) : (
                         <Badge variant="destructive">Pending</Badge>
                       )}
@@ -270,11 +270,18 @@ function NameList({
 }
 
 function MiniStat({ label, value, tone }: { label: string; value: React.ReactNode; tone?: "success" | "warning" | "primary" }) {
-  const color = tone === "success" ? "text-success" : tone === "warning" ? "text-warning-foreground" : tone === "primary" ? "text-primary" : "";
+  const color =
+    tone === "success"
+      ? "text-success"
+      : tone === "warning"
+        ? "text-destructive"
+        : tone === "primary"
+          ? "text-primary"
+          : "text-foreground";
   return (
-    <div>
+    <div className="rounded-xl bg-muted/40 px-3 py-3">
       <div className={`text-xl font-semibold ${color}`}>{value}</div>
-      <div className="text-xs text-muted-foreground mt-1">{label}</div>
+      <div className="mt-1 text-xs font-medium text-muted-foreground">{label}</div>
     </div>
   );
 }
@@ -282,13 +289,13 @@ function MiniStat({ label, value, tone }: { label: string; value: React.ReactNod
 function Stat({ label, value, icon: Icon, tone }: { label: string; value: React.ReactNode; icon: React.ElementType; tone: "primary" | "success" | "warning" }) {
   const toneBg = tone === "success" ? "bg-success/10 text-success" : tone === "warning" ? "bg-warning/15 text-warning-foreground" : "bg-primary/10 text-primary";
   return (
-    <Card className="p-5">
+    <Card className="p-5 hover-lift">
       <div className="flex items-start justify-between">
         <div>
-          <div className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{label}</div>
+          <div className="text-xs font-medium uppercase tracking-wide text-muted-foreground">{label}</div>
           <div className="text-2xl font-semibold mt-2">{value}</div>
         </div>
-        <div className={`h-10 w-10 rounded-lg grid place-items-center ${toneBg}`}>
+        <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-xl ${toneBg}`}>
           <Icon className="h-5 w-5" />
         </div>
       </div>
@@ -299,9 +306,9 @@ function Stat({ label, value, icon: Icon, tone }: { label: string; value: React.
 function Action({ to, classId, icon: Icon, title, desc }: { to: string; classId?: string; icon: React.ElementType; title: string; desc: string }) {
   return (
     <Link to={to as any} search={{ classId } as any}>
-      <Card className="p-5 hover:shadow-md hover:border-primary/40 transition-all cursor-pointer h-full">
+      <Card className="h-full cursor-pointer p-5 hover-lift hover:border-primary/40">
         <div className="flex items-center gap-3">
-          <div className="h-12 w-12 rounded-xl bg-primary text-primary-foreground grid place-items-center shrink-0 shadow-sm">
+          <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-primary text-primary-foreground glow-primary">
             <Icon className="h-6 w-6" />
           </div>
           <div>
