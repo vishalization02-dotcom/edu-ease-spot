@@ -35,6 +35,7 @@ function ProtectedLayout() {
   const navigate = useNavigate();
   const router = useRouter();
   const [userName, setUserName] = useState("Teacher");
+  const [logoUrl, setLogoUrl] = useState("");
   // const [profileOpen, setProfileOpen] = useState(false);
   const [email, setEmail] = useState("");
 useEffect(() => {
@@ -45,13 +46,14 @@ useEffect(() => {
 
 setEmail(user?.email ?? "");
     const { data } = await supabase
-      .from("teachers")
-      .select("full_name")
-      .maybeSingle();
+  .from("teachers")
+  .select("full_name, logo_url")
+  .maybeSingle();
 
-    if (data?.full_name) {
-      setUserName(data.full_name.split(" ")[0]);
-    }
+    if (data) {
+  setUserName(data.full_name.split(" ")[0]);
+  setLogoUrl(data.logo_url ?? "");
+}
   }
 
   loadProfile();
@@ -111,9 +113,23 @@ setEmail(user?.email ?? "");
 
         <button className="group flex h-10 items-center gap-2.5 rounded-xl border border-border/70 bg-background/60 px-2 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 md:px-3">
 
-          <div className="flex h-7 w-7 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-            {userName.charAt(0)}
-          </div>
+        <div className="flex h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20 bg-background shadow-sm">
+
+  {logoUrl ? (
+    <img
+      src={logoUrl}
+      alt="Institute Logo"
+      className="h-full w-full object-cover"
+    />
+  ) : (
+    <div className="flex h-full w-full items-center justify-center bg-primary/15">
+      <span className="text-xs font-bold text-primary">
+        {userName.charAt(0)}
+      </span>
+    </div>
+  )}
+
+</div>
 
           <div className="hidden text-left leading-tight md:block">
 
