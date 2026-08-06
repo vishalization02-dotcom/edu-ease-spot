@@ -4,6 +4,8 @@ import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/s
 import { AppSidebar } from "@/components/app-sidebar";
 import { useEffect, useState } from "react";
 import { useRouter } from "@tanstack/react-router";
+import { useNavigate } from "@tanstack/react-router";
+// import ProfileDialog from "@/components/profile/ProfileDialog";
 import {
   Bell,
   ChevronDown,
@@ -30,11 +32,18 @@ export const Route = createFileRoute("/_authenticated")({
 });
 
 function ProtectedLayout() {
+  const navigate = useNavigate();
   const router = useRouter();
   const [userName, setUserName] = useState("Teacher");
-
+  // const [profileOpen, setProfileOpen] = useState(false);
+  const [email, setEmail] = useState("");
 useEffect(() => {
   async function loadProfile() {
+    const {
+  data: { user },
+} = await supabase.auth.getUser();
+
+setEmail(user?.email ?? "");
     const { data } = await supabase
       .from("teachers")
       .select("full_name")
@@ -126,12 +135,18 @@ useEffect(() => {
 
       <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5">
 
-        <DropdownMenuItem className="rounded-lg py-2">
-          <User className="mr-2 h-4 w-4" />
-          My Profile
-        </DropdownMenuItem>
+<DropdownMenuItem
+  className="rounded-lg py-2"
+  onClick={() => navigate({ to: "/profile" })}
+>
+  <User className="mr-2 h-4 w-4" />
+  My Profile
+</DropdownMenuItem>
 
-        <DropdownMenuItem className="rounded-lg py-2">
+        <DropdownMenuItem
+  className="rounded-lg py-2"
+onClick={() => navigate({ to: "/settings" })}
+>
           <Settings className="mr-2 h-4 w-4" />
           Settings
         </DropdownMenuItem>
@@ -158,6 +173,7 @@ useEffect(() => {
           <main className="flex-1 p-4 md:p-6 lg:p-8">
             <Outlet />
           </main>
+          
         </SidebarInset>
       </div>
     </SidebarProvider>
