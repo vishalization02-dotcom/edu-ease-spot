@@ -8,7 +8,24 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/page-header";
-import { Settings as SettingsIcon } from "lucide-react";
+// import { Settings as SettingsIcon } from "lucide-react";
+import {
+  Settings as SettingsIcon,
+  User,
+  Shield,
+  Upload,
+  Download,
+  Bell,
+  Palette,
+  School,
+  CreditCard,
+  ChevronRight,
+  Building2,
+  BellElectric,
+  ThermometerSnowflakeIcon,
+  LockKeyholeOpenIcon,
+  LockIcon,
+} from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/_authenticated/settings")({
@@ -30,6 +47,7 @@ function SettingsPage() {
   const [institute, setInstitute] = useState("");
   const [mobile, setMobile] = useState("");
   const [saving, setSaving] = useState(false);
+  // const [selected, setSelected] = useState<"home" | "profile" | "security">("home");
 
   useEffect(() => {
     if (profile.data) {
@@ -56,6 +74,17 @@ function SettingsPage() {
   const [newPw, setNewPw] = useState("");
   const [newPw2, setNewPw2] = useState("");
   const [pwSaving, setPwSaving] = useState(false);
+  const [selected, setSelected] = useState<
+  | "home"
+  | "profile"
+  | "security"
+  | "import"
+  | "export"
+  | "notifications"
+  | "appearance"
+  | "institute"
+  | "subscription"
+>("home");
 
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
@@ -68,30 +97,496 @@ function SettingsPage() {
     toast.success("Password updated");
     setNewPw(""); setNewPw2("");
   }
+const settingCards = [
+  {
+    key: "profile",
+    title: "Profile",
+    desc: "Update your profile information",
+    icon: User,
+  },
+  {
+    key: "security",
+    title: "Security",
+    desc: "Password & login security",
+    icon: Shield,
+  },
+  {
+    key: "import",
+    title: "Import Data",
+    desc: "Import students and classes",
+    icon: Upload,
+  },
+  {
+    key: "export",
+    title: "Export Data",
+    desc: "Download reports",
+    icon: Download,
+  },
+  {
+    key: "notifications",
+    title: "Notifications",
+    desc: "Manage reminders",
+    icon: Bell,
+  },
+  {
+    key: "appearance",
+    title: "Appearance",
+    desc: "Theme settings",
+    icon: Palette,
+  },
+  {
+    key: "institute",
+    title: "Institute",
+    desc: "Institute information",
+    icon: School,
+  },
+  {
+    key: "subscription",
+    title: "Subscription",
+    desc: "Manage your plan",
+    icon: CreditCard,
+  },
+] as const;
 
   return (
-    <div className="space-y-5 max-w-2xl mx-auto animate-fade-in">
-      <PageHeader icon={SettingsIcon} title="Settings" description="Manage your teacher profile." />
+  <div className="space-y-8 max-w-4xl mx-auto animate-fade-in">
 
-      <Card className="p-6">
-        <h2 className="mb-4 text-base font-semibold tracking-tight">Profile</h2>
-        <form onSubmit={saveProfile} className="space-y-4">
-          <div className="space-y-1.5"><Label>Teacher name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Institute name</Label><Input value={institute} onChange={(e) => setInstitute(e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Mobile number</Label><Input value={mobile} disabled /></div>
-          <p className="text-xs text-muted-foreground">Mobile number is used to sign in and cannot be changed here.</p>
-          <Button type="submit" disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
-        </form>
-      </Card>
+    <PageHeader
+      icon={SettingsIcon}
+      title="Settings"
+      description="Manage your teacher profile."
+    />
+{selected === "home" && (
+  <div className="space-y-8">
 
-      <Card className="p-6">
-        <h2 className="mb-4 text-base font-semibold tracking-tight">Change password</h2>
-        <form onSubmit={changePassword} className="space-y-4">
-          <div className="space-y-1.5"><Label>New password</Label><Input type="password" value={newPw} onChange={(e) => setNewPw(e.target.value)} /></div>
-          <div className="space-y-1.5"><Label>Confirm new password</Label><Input type="password" value={newPw2} onChange={(e) => setNewPw2(e.target.value)} /></div>
-          <Button type="submit" disabled={pwSaving}>{pwSaving ? "Updating…" : "Update password"}</Button>
-        </form>
-      </Card>
+    {/* General */}
+
+    <div>
+
+      <h2 className="mb-3 text-lg font-semibold">
+        General
+      </h2>
+
+      <div className="grid md:grid-cols-2 gap-4">
+
+        <Card
+          className=" cursor-pointer
+  p-5
+  opacity-70
+  transition-all
+  duration-300
+  hover:-translate-y-1
+  hover:border-primary
+  hover:shadow-xl
+  hover:shadow-primary/10
+"
+          onClick={() => setSelected("profile")}
+        >
+          <div className="flex justify-between items-center">
+
+            <div>
+
+              <div className="text-lg font-semibold">
+              <User className="h-5 w-5 text-primary" /> 
+              
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Update your personal information
+              </p>
+
+            </div>
+
+            <span className="text-xl">›</span>
+
+          </div>
+        </Card>
+
+         <Card className=" cursor-pointer
+  p-5
+  opacity-70
+  transition-all
+  duration-300
+  hover:-translate-y-1
+  hover:border-primary
+  hover:shadow-xl
+  hover:shadow-primary/10
+">
+          <div className="flex justify-between items-center">
+
+            <div>
+
+              <div className="text-lg font-semibold">
+                <Building2 className="h-5 w-5 text-primary" />
+
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Institute details
+              </p>
+
+            </div>
+
+            <span className="text-xs bg-primary/20 rounded-full px-2 py-1">
+              Soon
+            </span>
+
+          </div>
+        </Card>
+
+      </div>
+
     </div>
-  );
+
+    {/* Data */}
+
+    <div>
+
+      <h2 className="mb-3 text-lg font-semibold">
+        Data
+      </h2>
+
+      <div className="grid md:grid-cols-2 gap-4">
+
+         <Card className=" cursor-pointer
+  p-5
+  opacity-70
+  transition-all
+  duration-300
+  hover:-translate-y-1
+  hover:border-primary
+  hover:shadow-xl
+  hover:shadow-primary/10
+">
+
+          <div className="flex justify-between items-center">
+
+            <div>
+
+              <div className="text-lg font-semibold">
+                <Upload className="h-5 w-5 text-primary" />
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Import students & classes
+              </p>
+
+            </div>
+
+            <span className="text-xs bg-primary/20 rounded-full px-2 py-1">
+              Soon
+            </span>
+
+          </div>
+
+        </Card>
+
+    <Card className=" cursor-pointer
+  p-5
+  opacity-70
+  transition-all
+  duration-300
+  hover:-translate-y-1
+  hover:border-primary
+  hover:shadow-xl
+  hover:shadow-primary/10
+">
+
+          <div className="flex justify-between items-center">
+
+            <div>
+
+              <div className="text-lg font-semibold">
+                <Download className="h-5 w-5 text-primary" />
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Download reports
+              </p>
+
+            </div>
+
+            <span className="text-xs bg-primary/20 rounded-full px-2 py-1">
+              Soon
+            </span>
+
+          </div>
+
+        </Card>
+
+      </div>
+
+    </div>
+
+    {/* Preferences */}
+
+    <div>
+
+      <h2 className="mb-3 text-lg font-semibold">
+        Preferences
+      </h2>
+
+      <div className="grid md:grid-cols-2 gap-4">
+
+         <Card className=" cursor-pointer
+  p-5
+  opacity-70
+  transition-all
+  duration-300
+  hover:-translate-y-1
+  hover:border-primary
+  hover:shadow-xl
+  hover:shadow-primary/10
+">
+
+          <div className="flex justify-between items-center">
+
+            <div>
+
+              <div className="text-lg font-semibold">
+                <Bell className="h-5 w-5 text-primary" />
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Fee reminders & alerts
+              </p>
+
+            </div>
+
+            <span className="text-xs bg-primary/20 rounded-full px-2 py-1">
+              Soon
+            </span>
+
+          </div>
+
+        </Card>
+
+         <Card className=" cursor-pointer
+  p-5
+  opacity-70
+  transition-all
+  duration-300
+  hover:-translate-y-1
+  hover:border-primary
+  hover:shadow-xl
+  hover:shadow-primary/10
+">
+
+          <div className="flex justify-between items-center">
+
+            <div>
+
+              <div className="text-lg font-semibold">
+                <Palette className="h-5 w-5 text-primary" />
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Theme settings
+              </p>
+
+            </div>
+
+            <span className="text-xs bg-primary/20 rounded-full px-2 py-1">
+              Soon
+            </span>
+
+          </div>
+
+        </Card>
+
+      </div>
+
+    </div>
+
+    {/* Account */}
+
+    <div>
+
+      <h2 className="mb-3 text-lg font-semibold">
+        Account
+      </h2>
+
+      <div className="grid md:grid-cols-2 gap-4">
+
+        <Card
+          className=" cursor-pointer
+  p-5
+  opacity-70
+  transition-all
+  duration-300
+  hover:-translate-y-1
+  hover:border-primary
+  hover:shadow-xl
+  hover:shadow-primary/10
+"
+          onClick={() => setSelected("security")}
+        >
+          <div className="flex justify-between items-center">
+
+            <div>
+
+              <div className="text-lg font-semibold">
+                <LockIcon className="h-5 w-5 text-primary" />
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Change password
+              </p>
+
+            </div>
+
+            <span className="text-xl">›</span>
+
+          </div>
+
+        </Card>
+
+        <Card className=" cursor-pointer
+  p-5
+  opacity-70
+  transition-all
+  duration-300
+  hover:-translate-y-1
+  hover:border-primary
+  hover:shadow-xl
+  hover:shadow-primary/10
+">
+
+          <div className="flex justify-between items-center">
+
+            <div>
+
+              <div className="text-lg font-semibold">
+                <CreditCard className="h-5 w-5 text-primary" />
+              </div>
+
+              <p className="text-sm text-muted-foreground">
+                Free Plan
+              </p>
+
+            </div>
+
+            <span className="text-xs bg-primary/20 rounded-full px-2 py-1">
+              Soon
+            </span>
+
+          </div>
+
+        </Card>
+
+      </div>
+
+    </div>
+
+  </div>
+)}
+
+
+    {selected === "profile" && (
+      <>
+        <Button
+          variant="ghost"
+          onClick={() => setSelected("home")}
+        >
+          ← Back
+        </Button>
+
+        <Card className="p-6">
+
+          <h2 className="mb-4 text-base font-semibold tracking-tight">
+            Profile
+          </h2>
+
+          <form onSubmit={saveProfile} className="space-y-4">
+
+            <div className="space-y-1.5">
+              <Label>Teacher name</Label>
+              <Input
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Institute name</Label>
+              <Input
+                value={institute}
+                onChange={(e) => setInstitute(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Mobile number</Label>
+              <Input value={mobile} disabled />
+            </div>
+
+            <p className="text-xs text-muted-foreground">
+              Mobile number is used to sign in and cannot be changed here.
+            </p>
+
+            <Button type="submit" disabled={saving}>
+              {saving ? "Saving..." : "Save Changes"}
+            </Button>
+
+          </form>
+
+        </Card>
+      </>
+    )}
+
+    {selected === "security" && (
+      <>
+        <Button
+          variant="ghost"
+          onClick={() => setSelected("home")}
+        >
+          ← Back
+        </Button>
+
+        <Card className="p-6">
+
+          <h2 className="mb-4 text-base font-semibold tracking-tight">
+            Change Password
+          </h2>
+
+          <form
+            onSubmit={changePassword}
+            className="space-y-4"
+          >
+
+            <div className="space-y-1.5">
+              <Label>New password</Label>
+
+              <Input
+                type="password"
+                value={newPw}
+                onChange={(e) => setNewPw(e.target.value)}
+              />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label>Confirm password</Label>
+
+              <Input
+                type="password"
+                value={newPw2}
+                onChange={(e) => setNewPw2(e.target.value)}
+              />
+            </div>
+
+            <Button
+              type="submit"
+              disabled={pwSaving}
+            >
+              {pwSaving ? "Updating..." : "Update Password"}
+            </Button>
+
+          </form>
+
+        </Card>
+      </>
+    )}
+
+  </div>
+);
 }
