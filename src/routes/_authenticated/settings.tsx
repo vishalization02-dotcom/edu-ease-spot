@@ -227,19 +227,10 @@ const exportOptions = {
 
       <div className="grid md:grid-cols-2 gap-4">
 
-        <Card
-          className=" cursor-pointer
-  p-5
-  opacity-70
-  transition-all
-  duration-300
-  hover:-translate-y-1
-  hover:border-primary
-  hover:shadow-xl
-  hover:shadow-primary/10
-"
-          onClick={() => setSelected("profile")}
-        >
+    <Card
+  className="cursor-pointer p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/10"
+  onClick={() => setSelected("profile")}
+>
           <div className="flex justify-between items-center">
 
             <div>
@@ -260,16 +251,9 @@ const exportOptions = {
           </div>
         </Card>
 
-         <Card className=" cursor-pointer
-  p-5
-  opacity-70
-  transition-all
-  duration-300
-  hover:-translate-y-1
-  hover:border-primary
-  hover:shadow-xl
-  hover:shadow-primary/10
-">
+        <Card
+  className="cursor-pointer p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/10"
+>
           <div className="flex justify-between items-center">
 
             <div>
@@ -306,16 +290,10 @@ const exportOptions = {
 
       <div className="grid md:grid-cols-2 gap-4">
 
-         <Card className=" cursor-pointer
-  p-5
-  opacity-70
-  transition-all
-  duration-300
-  hover:-translate-y-1
-  hover:border-primary
-  hover:shadow-xl
-  hover:shadow-primary/10
-">
+    <Card
+  className="cursor-pointer p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/10"
+
+>
 
           <div className="flex justify-between items-center">
 
@@ -377,16 +355,10 @@ const exportOptions = {
 
       <div className="grid md:grid-cols-2 gap-4">
 
-         <Card className=" cursor-pointer
-  p-5
-  opacity-70
-  transition-all
-  duration-300
-  hover:-translate-y-1
-  hover:border-primary
-  hover:shadow-xl
-  hover:shadow-primary/10
-">
+    <Card
+  className="cursor-pointer p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/10"
+ 
+>
 
           <div className="flex justify-between items-center">
 
@@ -410,17 +382,10 @@ const exportOptions = {
 
         </Card>
 
-         <Card className=" cursor-pointer
-  p-5
-  opacity-70
-  transition-all
-  duration-300
-  hover:-translate-y-1
-  hover:border-primary
-  hover:shadow-xl
-  hover:shadow-primary/10
-">
+<Card
+  className="cursor-pointer p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/10"
 
+>
           <div className="flex justify-between items-center">
 
             <div>
@@ -457,19 +422,10 @@ const exportOptions = {
 
       <div className="grid md:grid-cols-2 gap-4">
 
-        <Card
-          className=" cursor-pointer
-  p-5
-  opacity-70
-  transition-all
-  duration-300
-  hover:-translate-y-1
-  hover:border-primary
-  hover:shadow-xl
-  hover:shadow-primary/10
-"
-          onClick={() => setSelected("security")}
-        >
+ <Card
+  className="cursor-pointer p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/10"
+  onClick={() => setSelected("security")}
+>
           <div className="flex justify-between items-center">
 
             <div>
@@ -489,18 +445,10 @@ const exportOptions = {
           </div>
 
         </Card>
+<Card
+  className="cursor-pointer p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/10"
 
-        <Card className=" cursor-pointer
-  p-5
-  opacity-70
-  transition-all
-  duration-300
-  hover:-translate-y-1
-  hover:border-primary
-  hover:shadow-xl
-  hover:shadow-primary/10
-">
-
+>
           <div className="flex justify-between items-center">
 
             <div>
