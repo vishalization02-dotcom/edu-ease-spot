@@ -10,6 +10,17 @@ import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/page-header";
 // import { Settings as SettingsIcon } from "lucide-react";
 import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
+
+import { Checkbox } from "@/components/ui/checkbox";
+
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import {
   Settings as SettingsIcon,
   User,
   Shield,
@@ -85,7 +96,11 @@ function SettingsPage() {
   | "institute"
   | "subscription"
 >("home");
+const [exportDialog, setExportDialog] = useState(false);
 
+const [exportType, setExportType] = useState("");
+
+const [format, setFormat] = useState("pdf");
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
     if (newPw.length < 6) return toast.error("Password must be at least 6 characters");
@@ -147,6 +162,49 @@ const settingCards = [
     icon: CreditCard,
   },
 ] as const;
+
+const exportOptions = {
+  Students: {
+    fields: [
+      "Student Name",
+      "Class",
+      "Mobile Number",
+      "Guardian Name",
+      "Monthly Fee",
+      "Address",
+    ],
+  },
+
+  Attendance: {
+    fields: [
+      "Student Name",
+      "Class",
+      "Attendance Status",
+      "Date",
+      "Batch",
+    ],
+  },
+
+  Fees: {
+    fields: [
+      "Student Name",
+      "Amount",
+      "Payment Date",
+      "Payment Method",
+      "Remarks",
+      "Pending Amount",
+    ],
+  },
+
+  Reports: {
+    fields: [
+      "Student Summary",
+      "Attendance Summary",
+      "Fee Summary",
+      "Performance",
+    ],
+  },
+} as const;
 
   return (
   <div className="space-y-8 max-w-4xl mx-auto animate-fade-in">
@@ -281,17 +339,10 @@ const settingCards = [
 
         </Card>
 
-    <Card className=" cursor-pointer
-  p-5
-  opacity-70
-  transition-all
-  duration-300
-  hover:-translate-y-1
-  hover:border-primary
-  hover:shadow-xl
-  hover:shadow-primary/10
-">
-
+ <Card
+  className="cursor-pointer p-5 transition-all duration-300 hover:-translate-y-1 hover:border-primary hover:shadow-xl hover:shadow-primary/10"
+  onClick={() => setSelected("export")}
+>
           <div className="flex justify-between items-center">
 
             <div>
@@ -306,9 +357,7 @@ const settingCards = [
 
             </div>
 
-            <span className="text-xs bg-primary/20 rounded-full px-2 py-1">
-              Soon
-            </span>
+           <span className="text-xl">›</span>
 
           </div>
 
@@ -587,6 +636,285 @@ const settingCards = [
       </>
     )}
 
+{selected === "export" && (
+  <>
+    <Button
+      variant="ghost"
+      className="mb-4"
+      onClick={() => setSelected("home")}
+    >
+      ← Back
+    </Button>
+
+    <Card className="p-6">
+
+      <h2 className="text-2xl font-bold">
+        Export Data
+      </h2>
+
+      <p className="text-muted-foreground mb-6">
+        Download your ClassLedger data in different formats.
+      </p>
+
+      <div className="space-y-4">
+
+        <Card className="p-4 flex justify-between items-center">
+
+          <div>
+
+            <h3 className="font-semibold">
+              📚 Students
+            </h3>
+
+            <p className="text-sm text-muted-foreground">
+              Export student records
+            </p>
+
+          </div>
+
+          <Button
+    variant="outline"
+    onClick={()=>{
+        setExportType("Students");
+        setExportDialog(true);
+    }}
+>
+    Export
+</Button>
+
+        </Card>
+
+        <Card className="p-4 flex justify-between items-center">
+
+          <div>
+
+            <h3 className="font-semibold">
+              📅 Attendance
+            </h3>
+
+            <p className="text-sm text-muted-foreground">
+              Export attendance reports
+            </p>
+
+          </div>
+
+          <Button
+    variant="outline"
+    onClick={()=>{
+        setExportType("Attendance");
+        setExportDialog(true);
+    }}
+>
+    Export
+</Button>
+
+        </Card>
+
+        <Card className="p-4 flex justify-between items-center">
+
+          <div>
+
+            <h3 className="font-semibold">
+              💰 Fees
+            </h3>
+
+            <p className="text-sm text-muted-foreground">
+              Export fee collection reports
+            </p>
+
+          </div>
+
+         <Button
+    variant="outline"
+    onClick={()=>{
+        setExportType("Fees");
+        setExportDialog(true);
+    }}
+>
+    Export
+</Button>
+
+        </Card>
+
+        <Card className="p-4 flex justify-between items-center">
+
+          <div>
+
+            <h3 className="font-semibold">
+              📄 Reports
+            </h3>
+
+            <p className="text-sm text-muted-foreground">
+              Export generated reports
+            </p>
+
+          </div>
+<Button
+    variant="outline"
+    onClick={()=>{
+        setExportType("Reports");
+        setExportDialog(true);
+    }}
+>
+    Export
+</Button>
+
+        </Card>
+
+        <Card className="p-4 flex justify-between items-center border-primary/40">
+
+          <div>
+
+            <h3 className="font-semibold">
+              💾 Full Backup
+            </h3>
+
+            <p className="text-sm text-muted-foreground">
+              Download everything from your account
+            </p>
+
+          </div>
+
+          <Button>
+            Download
+          </Button>
+
+        </Card>
+
+      </div>
+
+    </Card>
+
+  </>
+)}
+<Dialog
+    open={exportDialog}
+    onOpenChange={setExportDialog}
+>
+
+<DialogContent className="max-w-md">
+
+<DialogHeader>
+
+<DialogTitle>
+
+Export {exportType}
+
+</DialogTitle>
+
+</DialogHeader>
+
+<div className="space-y-6">
+
+<div>
+
+<p className="mb-3 font-medium">
+
+Choose Format
+
+</p>
+
+<RadioGroup
+value={format}
+onValueChange={setFormat}
+>
+
+<div className="flex items-center gap-2">
+
+<RadioGroupItem value="pdf" id="pdf"/>
+
+<Label htmlFor="pdf">
+
+PDF
+
+</Label>
+
+</div>
+
+<div className="flex items-center gap-2">
+
+<RadioGroupItem value="excel" id="excel"/>
+
+<Label htmlFor="excel">
+
+Excel
+
+</Label>
+
+</div>
+
+<div className="flex items-center gap-2">
+
+<RadioGroupItem value="csv" id="csv"/>
+
+<Label htmlFor="csv">
+
+CSV
+
+</Label>
+
+</div>
+
+</RadioGroup>
+
+</div>
+
+<div>
+
+<p className="mb-3 font-medium">
+
+Include
+
+</p>
+
+<div className="space-y-3">
+
+  {exportType &&
+    exportOptions[
+      exportType as keyof typeof exportOptions
+    ]?.fields.map((field) => (
+
+      <div
+        key={field}
+        className="flex items-center gap-3"
+      >
+
+        <Checkbox defaultChecked />
+
+        <Label>{field}</Label>
+
+      </div>
+
+  ))}
+
+</div>
+
+</div>
+
+</div>
+
+<DialogFooter>
+
+<Button
+variant="outline"
+onClick={()=>setExportDialog(false)}
+>
+
+Cancel
+
+</Button>
+
+<Button>
+
+Export
+
+</Button>
+
+</DialogFooter>
+
+</DialogContent>
+
+</Dialog>
   </div>
 );
 }
