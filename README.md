@@ -9,6 +9,7 @@ A modern SaaS platform for teachers, tutors, coaching centers, and educational i
 ## ✨ Features
 
 ### 📊 Dashboard
+
 - Business overview
 - Today's insights
 - Quick action shortcuts
@@ -16,24 +17,28 @@ A modern SaaS platform for teachers, tutors, coaching centers, and educational i
 - Monthly performance summary
 
 ### 👨‍🎓 Student Management
+
 - Add and manage students
 - Student profiles
 - Batch/Class management
 - Active & inactive students
 
 ### ✅ Attendance
+
 - Daily attendance tracking
 - Present/Absent records
 - Attendance analytics
 - Monthly attendance reports
 
 ### 💰 Fee Management
+
 - Fee collection tracking
 - Pending fee monitoring
 - Monthly revenue overview
 - Payment history
 
 ### 📈 Analytics
+
 - Revenue analytics
 - Student growth
 - Attendance trends
@@ -41,6 +46,7 @@ A modern SaaS platform for teachers, tutors, coaching centers, and educational i
 - Interactive charts
 
 ### 🎨 UI
+
 - Responsive layout
 - Dark mode
 - Clean modern design
@@ -101,6 +107,7 @@ npm run dev
 # 📌 Roadmap
 
 ## Dashboard
+
 - [x] Business Overview
 - [x] Today's Snapshot
 - [x] Quick Actions
@@ -109,21 +116,25 @@ npm run dev
 - [ ] Real-time Dashboard
 
 ## Student Management
+
 - [ ] Student Profiles
 - [ ] Batch Management
 - [ ] Search & Filters
 
 ## Attendance
+
 - [ ] Daily Attendance
 - [ ] Monthly Reports
 - [ ] Attendance Analytics
 
 ## Fees
+
 - [ ] Online Payments
 - [ ] Payment Reminders
 - [ ] Receipt Generation
 
 ## Workspace
+
 - [ ] Multi-teacher support
 - [ ] Coaching Institute mode
 - [ ] Role-based access

@@ -2,13 +2,7 @@ import type { AttendanceRow, ClassRow, FeeRow, Student } from "@/lib/classledger
 
 export type InsightPriority = "High" | "Medium" | "Good" | "New";
 
-export type InsightIcon =
-  | "alert"
-  | "attendance"
-  | "growth"
-  | "money"
-  | "student"
-  | "info";
+export type InsightIcon = "alert" | "attendance" | "growth" | "money" | "student" | "info";
 
 export type GeneratedInsight = {
   id: string;
@@ -100,12 +94,14 @@ export function generateInsights(input: InsightInput): GeneratedInsight[] {
       title: "Attendance Alert",
       description:
         `${top.s.student_name} has missed the last ${top.streak} consecutive classes` +
-        (others > 0 ? ` — and ${others} other ${plural(others, "student")} also missed 3+ in a row.` : "."),
+        (others > 0
+          ? ` — and ${others} other ${plural(others, "student")} also missed 3+ in a row.`
+          : "."),
       priority: "High",
       icon: "alert",
     });
   }
-  
+
   // ---------- Today's attendance ----------
   const todayRows = attendance.filter((a) => a.date === today);
   const yesterdayDate = (() => {
@@ -128,7 +124,7 @@ export function generateInsights(input: InsightInput): GeneratedInsight[] {
       icon: "alert",
     });
   }
-  
+
   // Per-class attendance rate today
   const classStats = classes.map((c) => {
     const ids = new Set(students.filter((s) => s.class_id === c.id).map((s) => s.id));
@@ -142,7 +138,7 @@ export function generateInsights(input: InsightInput): GeneratedInsight[] {
       rate: rows.length > 0 ? (present / rows.length) * 100 : null,
     };
   });
-  
+
   const perfect = classStats.filter((c) => c.total > 0 && c.marked === c.total && c.rate === 100);
   if (perfect.length > 0) {
     out.push({
@@ -157,7 +153,9 @@ export function generateInsights(input: InsightInput): GeneratedInsight[] {
     });
   }
 
-  const rated = classStats.filter((c) => c.rate !== null) as (typeof classStats[number] & { rate: number })[];
+  const rated = classStats.filter((c) => c.rate !== null) as ((typeof classStats)[number] & {
+    rate: number;
+  })[];
   if (rated.length > 1) {
     const lowest = [...rated].sort((a, b) => a.rate - b.rate)[0];
     if (lowest.rate < 75) {
@@ -194,7 +192,7 @@ export function generateInsights(input: InsightInput): GeneratedInsight[] {
       icon: "attendance",
     });
   }
-  
+
   // Attendance trend vs yesterday
   const rate = (rows: AttendanceRow[]) =>
     rows.length ? (rows.filter((r) => r.status === "present").length / rows.length) * 100 : null;
@@ -254,7 +252,10 @@ export function generateInsights(input: InsightInput): GeneratedInsight[] {
     if (classes.length > 1) {
       const pendingByClass = new Map<string, number>();
       pendingStudents.forEach((s) => {
-        pendingByClass.set(s.class_id, (pendingByClass.get(s.class_id) ?? 0) + Number(s.monthly_fee || 0));
+        pendingByClass.set(
+          s.class_id,
+          (pendingByClass.get(s.class_id) ?? 0) + Number(s.monthly_fee || 0),
+        );
       });
       const worst = [...pendingByClass.entries()].sort((a, b) => b[1] - a[1])[0];
       const cls = worst && classMap.get(worst[0]);
@@ -350,7 +351,5 @@ export function generateInsights(input: InsightInput): GeneratedInsight[] {
     });
   }
 
-  return out
-    .sort((a, b) => PRIORITY_WEIGHT[a.priority] - PRIORITY_WEIGHT[b.priority])
-    .slice(0, 3);
+  return out.sort((a, b) => PRIORITY_WEIGHT[a.priority] - PRIORITY_WEIGHT[b.priority]).slice(0, 3);
 }

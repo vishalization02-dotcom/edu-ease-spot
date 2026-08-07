@@ -9,12 +9,7 @@ interface MonthClosedProps {
   unpaidStudents: number;
 }
 
-export function MonthClosed({
-  month,
-  expected,
-  collected,
-  unpaidStudents,
-}: MonthClosedProps) {
+export function MonthClosed({ month, expected, collected, unpaidStudents }: MonthClosedProps) {
   const outstanding = expected - collected;
 
   return (
@@ -28,16 +23,12 @@ export function MonthClosed({
         <div className="grid grid-cols-3 gap-4">
           <div>
             <p className="text-sm text-muted-foreground">Collected</p>
-            <p className="text-xl font-bold text-green-600">
-              ₹{collected.toLocaleString()}
-            </p>
+            <p className="text-xl font-bold text-green-600">₹{collected.toLocaleString()}</p>
           </div>
 
           <div>
             <p className="text-sm text-muted-foreground">Outstanding</p>
-            <p className="text-xl font-bold text-red-600">
-              ₹{outstanding.toLocaleString()}
-            </p>
+            <p className="text-xl font-bold text-red-600">₹{outstanding.toLocaleString()}</p>
           </div>
 
           <div>
@@ -48,8 +39,7 @@ export function MonthClosed({
 
         <div className="rounded-lg border bg-orange-50 dark:bg-orange-950/20 p-4">
           <p className="font-medium">
-            {unpaidStudents} student{unpaidStudents !== 1 ? "s" : ""} didn't pay
-            their {month} fees.
+            {unpaidStudents} student{unpaidStudents !== 1 ? "s" : ""} didn't pay their {month} fees.
           </p>
 
           <Button variant="link" className="px-0 mt-2">

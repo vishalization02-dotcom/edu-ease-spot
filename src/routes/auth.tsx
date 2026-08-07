@@ -55,7 +55,9 @@ function AuthPage() {
         </Card>
 
         <p className="text-center text-xs text-muted-foreground mt-6">
-          <Link to="/" className="hover:text-foreground">Back home</Link>
+          <Link to="/" className="hover:text-foreground">
+            Back home
+          </Link>
         </p>
       </div>
     </div>
@@ -84,11 +86,24 @@ function LoginForm({ onDone }: { onDone: () => void }) {
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="l-mobile">Mobile number</Label>
-        <Input id="l-mobile" inputMode="tel" autoComplete="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="9876543210" />
+        <Input
+          id="l-mobile"
+          inputMode="tel"
+          autoComplete="tel"
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+          placeholder="9876543210"
+        />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="l-pw">Password</Label>
-        <Input id="l-pw" type="password" autoComplete="current-password" value={password} onChange={(e) => setPassword(e.target.value)} />
+        <Input
+          id="l-pw"
+          type="password"
+          autoComplete="current-password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
       </div>
       <Button type="submit" size="lg" className="w-full" disabled={loading}>
         {loading ? "Signing in..." : "Sign in"}
@@ -129,24 +144,52 @@ function RegisterForm({ onDone }: { onDone: () => void }) {
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-1.5">
         <Label htmlFor="r-name">Full name</Label>
-        <Input id="r-name" value={fullName} onChange={(e) => setFullName(e.target.value)} placeholder="Priya Sharma" />
+        <Input
+          id="r-name"
+          value={fullName}
+          onChange={(e) => setFullName(e.target.value)}
+          placeholder="Priya Sharma"
+        />
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="r-mobile">Mobile number</Label>
-        <Input id="r-mobile" inputMode="tel" value={mobile} onChange={(e) => setMobile(e.target.value)} placeholder="9876543210" />
+        <Input
+          id="r-mobile"
+          inputMode="tel"
+          value={mobile}
+          onChange={(e) => setMobile(e.target.value)}
+          placeholder="9876543210"
+        />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="r-institute">Institute name <span className="text-muted-foreground">(optional)</span></Label>
-        <Input id="r-institute" value={institute} onChange={(e) => setInstitute(e.target.value)} placeholder="Priya's Music Class" />
+        <Label htmlFor="r-institute">
+          Institute name <span className="text-muted-foreground">(optional)</span>
+        </Label>
+        <Input
+          id="r-institute"
+          value={institute}
+          onChange={(e) => setInstitute(e.target.value)}
+          placeholder="Priya's Music Class"
+        />
       </div>
       <div className="grid grid-cols-2 gap-3">
         <div className="space-y-1.5">
           <Label htmlFor="r-pw">Password</Label>
-          <Input id="r-pw" type="password" value={password} onChange={(e) => setPassword(e.target.value)} />
+          <Input
+            id="r-pw"
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+          />
         </div>
         <div className="space-y-1.5">
           <Label htmlFor="r-pw2">Confirm</Label>
-          <Input id="r-pw2" type="password" value={confirm} onChange={(e) => setConfirm(e.target.value)} />
+          <Input
+            id="r-pw2"
+            type="password"
+            value={confirm}
+            onChange={(e) => setConfirm(e.target.value)}
+          />
         </div>
       </div>
       <Button type="submit" size="lg" className="w-full" disabled={loading}>

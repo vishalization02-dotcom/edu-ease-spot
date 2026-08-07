@@ -31,19 +31,37 @@ export function detectIntent(question: string): AiIntent {
   const q = question.toLowerCase().trim();
   if (!q) return "unsupported";
 
-  if (has(q, "pending") && (q.includes("amount") || q.includes("total")))
-    return "pending_amount";
+  if (has(q, "pending") && (q.includes("amount") || q.includes("total"))) return "pending_amount";
   if (
-    (q.includes("fee") && (q.includes("not paid") || q.includes("hasn't") || q.includes("hasnt") || q.includes("unpaid") || q.includes("pending") || q.includes("due"))) ||
+    (q.includes("fee") &&
+      (q.includes("not paid") ||
+        q.includes("hasn't") ||
+        q.includes("hasnt") ||
+        q.includes("unpaid") ||
+        q.includes("pending") ||
+        q.includes("due"))) ||
     has(q, "who", "fee")
   )
     return "pending_fees";
   if (q.includes("absent")) return "absent_today";
-  if (q.includes("revenue") || q.includes("earning") || q.includes("income") || has(q, "collected", "month"))
+  if (
+    q.includes("revenue") ||
+    q.includes("earning") ||
+    q.includes("income") ||
+    has(q, "collected", "month")
+  )
     return "revenue_month";
-  if (q.includes("best") || q.includes("highest") || q.includes("top class") || has(q, "which", "class"))
+  if (
+    q.includes("best") ||
+    q.includes("highest") ||
+    q.includes("top class") ||
+    has(q, "which", "class")
+  )
     return "best_class";
-  if (q.includes("student") && (q.includes("total") || q.includes("how many") || q.includes("enrolled") || q.includes("count")))
+  if (
+    q.includes("student") &&
+    (q.includes("total") || q.includes("how many") || q.includes("enrolled") || q.includes("count"))
+  )
     return "total_students";
   if (q.includes("attendance")) return "attendance_today";
   if (q.includes("pending")) return "pending_amount";
@@ -66,9 +84,7 @@ async function loadContext() {
 type Ctx = Awaited<ReturnType<typeof loadContext>>;
 
 function pendingFees(ctx: Ctx): AiAnswer {
-  const paid = new Set(
-    ctx.fees.filter((f) => f.status === "paid").map((f) => f.student_id)
-  );
+  const paid = new Set(ctx.fees.filter((f) => f.status === "paid").map((f) => f.student_id));
   const unpaid = ctx.students.filter((s) => !paid.has(s.id));
   const total = unpaid.reduce((sum, s) => sum + Number(s.monthly_fee || 0), 0);
   return {
@@ -91,7 +107,11 @@ function absentToday(ctx: Ctx): AiAnswer {
     title: "Today's Absentees",
     items: absentees.map((n) => ({ label: n })),
     stats: [
-      { label: "Total", value: `${absentees.length} ${absentees.length === 1 ? "Student" : "Students"}`, tone: absentees.length ? "negative" : "positive" },
+      {
+        label: "Total",
+        value: `${absentees.length} ${absentees.length === 1 ? "Student" : "Students"}`,
+        tone: absentees.length ? "negative" : "positive",
+      },
     ],
     empty: ctx.attendanceToday.length
       ? "No absentees today. Full attendance!"
@@ -117,7 +137,11 @@ function revenueMonth(ctx: Ctx): AiAnswer {
     stats: [
       { label: "Collected", value: inr(collected), tone: "positive" },
       { label: "Pending", value: inr(pending), tone: "negative" },
-      { label: "Growth", value: `${growth >= 0 ? "+" : ""}${growth}%`, tone: growth >= 0 ? "positive" : "negative" },
+      {
+        label: "Growth",
+        value: `${growth >= 0 ? "+" : ""}${growth}%`,
+        tone: growth >= 0 ? "positive" : "negative",
+      },
     ],
     footnote: "Compared with last month's collection.",
   };

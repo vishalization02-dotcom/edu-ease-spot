@@ -46,8 +46,18 @@ function FeesPage() {
   });
 
   const feeMap = useMemo(() => {
-    const m = new Map<string, { id?: string; status: "paid" | "pending"; amount: number; payment_date?: string | null }>();
-    (fees.data ?? []).forEach((f) => m.set(f.student_id, { id: f.id, status: f.status, amount: Number(f.amount), payment_date: f.payment_date }));
+    const m = new Map<
+      string,
+      { id?: string; status: "paid" | "pending"; amount: number; payment_date?: string | null }
+    >();
+    (fees.data ?? []).forEach((f) =>
+      m.set(f.student_id, {
+        id: f.id,
+        status: f.status,
+        amount: Number(f.amount),
+        payment_date: f.payment_date,
+      }),
+    );
     return m;
   }, [fees.data]);
 
@@ -75,7 +85,9 @@ function FeesPage() {
       status,
       payment_date: status === "paid" ? new Date().toISOString().slice(0, 10) : null,
     };
-    const { error } = await supabase.from("fees").upsert(payload, { onConflict: "student_id,month" });
+    const { error } = await supabase
+      .from("fees")
+      .upsert(payload, { onConflict: "student_id,month" });
     if (error) return toast.error(error.message);
     toast.success(status === "paid" ? "Marked as paid" : "Marked as pending");
     qc.invalidateQueries({ queryKey: ["fees"] });
@@ -84,14 +96,25 @@ function FeesPage() {
   return (
     <div className="space-y-5 max-w-5xl mx-auto animate-fade-in">
       <PageHeader icon={Wallet} title="Fees" description="Track monthly fee collection.">
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Class</Label>
-            <ClassSelector classes={classes.data ?? []} value={classId} onChange={setClassId} placeholder="Select class" className="w-[160px] sm:w-[180px]" />
-          </div>
-          <div className="space-y-1.5">
-            <Label className="text-xs text-muted-foreground">Month</Label>
-            <Input type="month" value={month} onChange={(e) => setMonth(e.target.value)} className="w-[160px] sm:w-[180px]" />
-          </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">Class</Label>
+          <ClassSelector
+            classes={classes.data ?? []}
+            value={classId}
+            onChange={setClassId}
+            placeholder="Select class"
+            className="w-[160px] sm:w-[180px]"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label className="text-xs text-muted-foreground">Month</Label>
+          <Input
+            type="month"
+            value={month}
+            onChange={(e) => setMonth(e.target.value)}
+            className="w-[160px] sm:w-[180px]"
+          />
+        </div>
       </PageHeader>
 
       {(classes.data ?? []).length === 0 && (
@@ -100,39 +123,76 @@ function FeesPage() {
             icon={Users}
             title="No classes yet"
             description="Create a class before you can collect fees."
-            action={<Link to="/classes"><Button>Go to Classes</Button></Link>}
+            action={
+              <Link to="/classes">
+                <Button>Go to Classes</Button>
+              </Link>
+            }
           />
         </Card>
       )}
 
       <div className="grid grid-cols-2 gap-3">
-        <Card className="p-5 hover-lift"><div className="text-xs font-medium text-muted-foreground">Collected</div><div className="text-2xl font-semibold text-success mt-1">₹{totals.collected.toLocaleString()}</div></Card>
-        <Card className="p-5 hover-lift"><div className="text-xs font-medium text-muted-foreground">Pending</div><div className="text-2xl font-semibold text-destructive mt-1">₹{totals.pending.toLocaleString()}</div></Card>
+        <Card className="p-5 hover-lift">
+          <div className="text-xs font-medium text-muted-foreground">Collected</div>
+          <div className="text-2xl font-semibold text-success mt-1">
+            ₹{totals.collected.toLocaleString()}
+          </div>
+        </Card>
+        <Card className="p-5 hover-lift">
+          <div className="text-xs font-medium text-muted-foreground">Pending</div>
+          <div className="text-2xl font-semibold text-destructive mt-1">
+            ₹{totals.pending.toLocaleString()}
+          </div>
+        </Card>
       </div>
 
       <Card className="divide-y divide-border/60 overflow-hidden">
         {(students.data ?? []).length === 0 && (
-          <EmptyState icon={Users} title="No students yet" description="Add students to this class to track their fees." />
+          <EmptyState
+            icon={Users}
+            title="No students yet"
+            description="Add students to this class to track their fees."
+          />
         )}
         {(students.data ?? []).map((s) => {
           const f = feeMap.get(s.id);
           const status = f?.status ?? "pending";
           return (
-            <div key={s.id} className="flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-accent/30">
+            <div
+              key={s.id}
+              className="flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-accent/30"
+            >
               <div className="min-w-0">
                 <div className="truncate font-medium">{s.student_name}</div>
-                <div className="text-xs text-muted-foreground">{s.course} · ₹{Number(s.monthly_fee).toLocaleString()}/mo</div>
+                <div className="text-xs text-muted-foreground">
+                  {s.course} · ₹{Number(s.monthly_fee).toLocaleString()}/mo
+                </div>
               </div>
               <div className="flex items-center gap-2 sm:gap-3">
                 {status === "paid" ? (
-                  <Badge variant="success">Paid{f?.payment_date ? ` · ${f.payment_date}` : ""}</Badge>
+                  <Badge variant="success">
+                    Paid{f?.payment_date ? ` · ${f.payment_date}` : ""}
+                  </Badge>
                 ) : (
                   <Badge variant="destructive">Pending</Badge>
                 )}
                 {status === "paid" ? (
-                  <Button variant="outline" size="sm" onClick={() => setStatus(s.id, Number(s.monthly_fee), "pending")}>Mark Pending</Button>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => setStatus(s.id, Number(s.monthly_fee), "pending")}
+                  >
+                    Mark Pending
+                  </Button>
                 ) : (
-                  <Button size="sm" className="bg-success hover:bg-success/90 text-success-foreground" onClick={() => setStatus(s.id, Number(s.monthly_fee), "paid")}>Mark Paid</Button>
+                  <Button
+                    size="sm"
+                    className="bg-success hover:bg-success/90 text-success-foreground"
+                    onClick={() => setStatus(s.id, Number(s.monthly_fee), "paid")}
+                  >
+                    Mark Paid
+                  </Button>
                 )}
               </div>
             </div>

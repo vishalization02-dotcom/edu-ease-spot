@@ -1,4 +1,10 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import type { ClassRow } from "@/lib/classledger-data";
 
 export function ClassSelector({
@@ -24,7 +30,9 @@ export function ClassSelector({
       <SelectContent>
         {includeAll && <SelectItem value="__all__">All classes</SelectItem>}
         {classes.map((c) => (
-          <SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>
+          <SelectItem key={c.id} value={c.id}>
+            {c.name}
+          </SelectItem>
         ))}
       </SelectContent>
     </Select>

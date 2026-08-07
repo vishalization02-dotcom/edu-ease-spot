@@ -28,10 +28,7 @@ export async function signUpTeacher(params: {
   });
 }
 
-export async function signInTeacher(
-  mobile: string,
-  password: string
-) {
+export async function signInTeacher(mobile: string, password: string) {
   return supabase.auth.signInWithPassword({
     email: mobileToEmail(mobile),
     password,

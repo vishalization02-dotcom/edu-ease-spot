@@ -9,6 +9,7 @@ import {
   Scripts,
 } from "@tanstack/react-router";
 import { useEffect, type ReactNode } from "react";
+import { SpeedInsights } from "@/components/speed-insights";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
@@ -80,9 +81,17 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { title: "ClassLedger — Manage students, attendance & fees" },
-      { name: "description", content: "The simplest way for independent teachers to manage students, attendance and monthly fee collection." },
+      {
+        name: "description",
+        content:
+          "The simplest way for independent teachers to manage students, attendance and monthly fee collection.",
+      },
       { property: "og:title", content: "ClassLedger — Manage students, attendance & fees" },
-      { property: "og:description", content: "The simplest way for independent teachers to manage students, attendance and monthly fee collection." },
+      {
+        property: "og:description",
+        content:
+          "The simplest way for independent teachers to manage students, attendance and monthly fee collection.",
+      },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],
@@ -123,10 +132,11 @@ function RootComponent() {
 
   return (
     <QueryClientProvider client={queryClient}>
-  <ThemeProvider>
-    <Outlet />
-    <Toaster richColors position="top-right" />
-  </ThemeProvider>
-</QueryClientProvider>
+      <ThemeProvider>
+        <Outlet />
+        <Toaster richColors position="top-right" />
+        <SpeedInsights />
+      </ThemeProvider>
+    </QueryClientProvider>
   );
 }
