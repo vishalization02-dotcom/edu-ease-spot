@@ -11,8 +11,8 @@ const toneClass = (tone: AiStat["tone"]) =>
   tone === "positive"
     ? "text-emerald-400"
     : tone === "negative"
-    ? "text-red-400"
-    : "text-foreground";
+      ? "text-red-400"
+      : "text-foreground";
 
 function AnswerView({ answer }: { answer: AiAnswer }) {
   const hasItems = !!answer.items?.length;
@@ -20,9 +20,7 @@ function AnswerView({ answer }: { answer: AiAnswer }) {
 
   return (
     <div key={answer.title + (answer.items?.length ?? 0)} className="animate-fade-in space-y-3">
-      {!showEmpty && (
-        <h3 className="text-sm font-semibold tracking-tight">{answer.title}</h3>
-      )}
+      {!showEmpty && <h3 className="text-sm font-semibold tracking-tight">{answer.title}</h3>}
 
       {hasItems && (
         <ul className="space-y-1.5">
@@ -62,13 +60,9 @@ function AnswerView({ answer }: { answer: AiAnswer }) {
         </div>
       )}
 
-      {showEmpty && (
-        <p className="text-sm text-muted-foreground">{answer.empty}</p>
-      )}
+      {showEmpty && <p className="text-sm text-muted-foreground">{answer.empty}</p>}
 
-      {answer.footnote && (
-        <p className="text-xs text-muted-foreground">{answer.footnote}</p>
-      )}
+      {answer.footnote && <p className="text-xs text-muted-foreground">{answer.footnote}</p>}
     </div>
   );
 }

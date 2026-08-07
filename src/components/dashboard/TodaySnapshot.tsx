@@ -1,11 +1,5 @@
 import { Card } from "@/components/ui/card";
-import {
-  Users,
-  BookOpen,
-  CheckCircle2,
-  XCircle,
-  BarChart3,
-} from "lucide-react";
+import { Users, BookOpen, CheckCircle2, XCircle, BarChart3 } from "lucide-react";
 
 interface TodaySnapshotProps {
   students: number;
@@ -14,38 +8,25 @@ interface TodaySnapshotProps {
   absent: number;
 }
 
-export function TodaySnapshot({
-  students,
-  classes,
-  present,
-  absent,
-}: TodaySnapshotProps) {
+export function TodaySnapshot({ students, classes, present, absent }: TodaySnapshotProps) {
   return (
     <Card className="rounded-2xl border border-border/60 bg-card p-6">
-
       {/* Header */}
       <div className="mb-3 flex items-center gap-3">
-
         <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-500/15">
           <BarChart3 className="h-6 w-6 text-blue-400" />
         </div>
 
         <div>
-          <h2 className="text-xl font-bold">
-            Today's Snapshot
-          </h2>
+          <h2 className="text-xl font-bold">Today's Snapshot</h2>
 
-          <p className="text-sm text-muted-foreground">
-            Quick overview of today's activity
-          </p>
+          <p className="text-sm text-muted-foreground">Quick overview of today's activity</p>
         </div>
-
       </div>
 
       {/* Grid */}
 
       <div className="grid grid-cols-2 gap-3">
-
         <SnapshotItem
           icon={<Users className="h-5 w-5 text-violet-400" />}
           bg="bg-violet-500/15"
@@ -73,9 +54,7 @@ export function TodaySnapshot({
           label="Absent"
           value={absent}
         />
-
       </div>
-
     </Card>
   );
 }
@@ -87,35 +66,18 @@ interface SnapshotItemProps {
   value: number;
 }
 
-function SnapshotItem({
-  icon,
-  bg,
-  label,
-  value,
-}: SnapshotItemProps) {
+function SnapshotItem({ icon, bg, label, value }: SnapshotItemProps) {
   return (
     <div className="rounded-xl border border-border/60 bg-background/40 p-2.5 transition-all duration-200 hover:border-primary/30 hover:bg-background/70">
-
       <div className="flex items-center gap-3">
-
-        <div
-          className={`flex h-9 w-9 items-center justify-center rounded-lg ${bg}`}
-        >
-          {icon}
-        </div>
+        <div className={`flex h-9 w-9 items-center justify-center rounded-lg ${bg}`}>{icon}</div>
 
         <div>
-          <p className="text-xs font-medium text-muted-foreground">
-            {label}
-          </p>
+          <p className="text-xs font-medium text-muted-foreground">{label}</p>
 
-          <p className="mt-0.5 text-1xl font-bold">
-            {value}
-          </p>
+          <p className="mt-0.5 text-1xl font-bold">{value}</p>
         </div>
-
       </div>
-
     </div>
   );
 }

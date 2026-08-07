@@ -63,7 +63,12 @@ export async function fetchStudents(classId?: string) {
   return (data ?? []) as Student[];
 }
 
-export async function fetchAttendance(opts?: { date?: string; dateFrom?: string; studentIds?: string[]; limit?: number }) {
+export async function fetchAttendance(opts?: {
+  date?: string;
+  dateFrom?: string;
+  studentIds?: string[];
+  limit?: number;
+}) {
   let q = supabase.from("attendance").select("*").order("date", { ascending: false });
   if (opts?.date) q = q.eq("date", opts.date);
   if (opts?.dateFrom) q = q.gte("date", opts.dateFrom);

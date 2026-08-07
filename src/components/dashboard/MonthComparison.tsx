@@ -23,10 +23,16 @@ function monthBounds(offset: number) {
   const start = new Date(now.getFullYear(), now.getMonth() + offset, 1);
   const end = new Date(now.getFullYear(), now.getMonth() + offset + 1, 0);
   const iso = (d: Date) =>
-    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(
-      d.getDate(),
-    ).padStart(2, "0")}`;
-  return { start: iso(start), end: iso(end), daysInMonth: end.getDate(), label: start.toLocaleString("en-IN", { month: "long" }) };
+    `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(
+      2,
+      "0",
+    )}`;
+  return {
+    start: iso(start),
+    end: iso(end),
+    daysInMonth: end.getDate(),
+    label: start.toLocaleString("en-IN", { month: "long" }),
+  };
 }
 
 async function fetchRange() {
@@ -40,15 +46,8 @@ async function fetchRange() {
       .eq("status", "paid")
       .gte("payment_date", prev.start)
       .lte("payment_date", cur.end),
-    supabase
-      .from("attendance")
-      .select("date,status")
-      .gte("date", prev.start)
-      .lte("date", cur.end),
-    supabase
-      .from("students")
-      .select("created_at")
-      .gte("created_at", prev.start),
+    supabase.from("attendance").select("date,status").gte("date", prev.start).lte("date", cur.end),
+    supabase.from("students").select("created_at").gte("created_at", prev.start),
   ]);
 
   return {
@@ -65,8 +64,7 @@ export function MonthComparison() {
   const q = useQuery({ queryKey: ["month-comparison"], queryFn: fetchRange });
 
   const { chartData, curTotal, prevTotal, prevLabel, curLabel } = useMemo(() => {
-    if (!q.data)
-      return { chartData: [], curTotal: 0, prevTotal: 0, prevLabel: "", curLabel: "" };
+    if (!q.data) return { chartData: [], curTotal: 0, prevTotal: 0, prevLabel: "", curLabel: "" };
     const { fees, attendance, students, prev, cur } = q.data;
     const days = Math.max(prev.daysInMonth, cur.daysInMonth);
 
@@ -125,11 +123,7 @@ export function MonthComparison() {
   }, [q.data, metric]);
 
   const growth =
-    prevTotal === 0
-      ? curTotal > 0
-        ? 100
-        : 0
-      : ((curTotal - prevTotal) / prevTotal) * 100;
+    prevTotal === 0 ? (curTotal > 0 ? 100 : 0) : ((curTotal - prevTotal) / prevTotal) * 100;
   const positive = growth >= 0;
 
   const format = (v: number) =>
@@ -194,7 +188,9 @@ export function MonthComparison() {
               fontSize={11}
               tickLine={false}
               axisLine={false}
-              tickFormatter={(v) => (metric === "revenue" ? `₹${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}` : String(v))}
+              tickFormatter={(v) =>
+                metric === "revenue" ? `₹${v >= 1000 ? `${(v / 1000).toFixed(0)}k` : v}` : String(v)
+              }
             />
             <Tooltip
               contentStyle={{
@@ -207,7 +203,10 @@ export function MonthComparison() {
               }}
               cursor={{ stroke: "var(--primary)", strokeOpacity: 0.25, strokeWidth: 2 }}
               labelStyle={{ fontWeight: 600, marginBottom: 4 }}
-              formatter={(value: number, name) => [format(value), name === "current" ? curLabel : prevLabel]}
+              formatter={(value: number, name) => [
+                format(value),
+                name === "current" ? curLabel : prevLabel,
+              ]}
               labelFormatter={(d) => `Day ${d}`}
             />
             <Legend
@@ -239,11 +238,15 @@ export function MonthComparison() {
 
       <div className="mt-4 grid grid-cols-3 gap-3 rounded-xl border border-border/60 bg-card/40 p-4">
         <div>
-          <div className="text-xs text-muted-foreground">{prevLabel} ({metricLabel})</div>
+          <div className="text-xs text-muted-foreground">
+            {prevLabel} ({metricLabel})
+          </div>
           <div className="mt-1 text-lg font-semibold">{format(prevTotal)}</div>
         </div>
         <div>
-          <div className="text-xs text-muted-foreground">{curLabel} ({metricLabel})</div>
+          <div className="text-xs text-muted-foreground">
+            {curLabel} ({metricLabel})
+          </div>
           <div className="mt-1 text-lg font-semibold text-primary">{format(curTotal)}</div>
         </div>
         <div>

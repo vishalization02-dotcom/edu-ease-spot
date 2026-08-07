@@ -1,5 +1,14 @@
 import { Link, useRouterState, useNavigate } from "@tanstack/react-router";
-import { LayoutDashboard, Users, CalendarCheck, Wallet, Settings, LogOut, GraduationCap, BookOpen } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  CalendarCheck,
+  Wallet,
+  Settings,
+  LogOut,
+  GraduationCap,
+  BookOpen,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import {
@@ -74,12 +83,12 @@ export function AppSidebar() {
                       <Link
                         to={item.url}
                         onClick={() => {
-                        if (isMobile) {
+                          if (isMobile) {
                             setOpenMobile(false);
-                            }
-                          }}
-                          className="flex items-center gap-3"
-                        >
+                          }
+                        }}
+                        className="flex items-center gap-3"
+                      >
                         <item.icon />
                         <span>{item.title}</span>
                       </Link>
@@ -103,23 +112,14 @@ export function AppSidebar() {
         </SidebarMenu>
       </SidebarFooter> */}
       <SidebarFooter className="border-t px-4 py-4">
+        {!collapsed && (
+          <div className="text-center">
+            <div className="text-xs font-medium text-muted-foreground">© 2026 ClassLedger</div>
 
-  {!collapsed && (
-    <div className="text-center">
-
-      <div className="text-xs font-medium text-muted-foreground">
-        © 2026 ClassLedger
-      </div>
-
-      <div className="mt-1 text-[11px] text-muted-foreground/70">
-        Version 1.0.0
-      </div>
-
-    </div>
-  )}
-
-</SidebarFooter>
+            <div className="mt-1 text-[11px] text-muted-foreground/70">Version 1.0.0</div>
+          </div>
+        )}
+      </SidebarFooter>
     </Sidebar>
-    
   );
 }

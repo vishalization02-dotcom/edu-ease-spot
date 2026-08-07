@@ -47,7 +47,11 @@ const ICON_MAP: Record<InsightIcon, typeof AlertTriangle> = {
 
 const PRIORITY_STYLES: Record<InsightPriority, { text: string; badge: string; iconBg: string }> = {
   High: { text: "text-red-400", badge: "bg-red-500/15 text-red-400", iconBg: "bg-red-500/15" },
-  Medium: { text: "text-amber-400", badge: "bg-amber-500/15 text-amber-400", iconBg: "bg-amber-500/15" },
+  Medium: {
+    text: "text-amber-400",
+    badge: "bg-amber-500/15 text-amber-400",
+    iconBg: "bg-amber-500/15",
+  },
   Good: {
     text: "text-emerald-400",
     badge: "bg-emerald-500/15 text-emerald-400",
@@ -70,39 +74,24 @@ function toInsight(generated: GeneratedInsight): Insight {
   };
 }
 
-function InsightRow({
-  title,
-  description,
-  icon,
-  iconBg,
-  badge,
-  badgeColor,
-}: Insight) {
+function InsightRow({ title, description, icon, iconBg, badge, badgeColor }: Insight) {
   return (
     <div className="flex items-start gap-4 rounded-xl border border-border/60 bg-card/40 px-4 py-3 transition-all duration-200 hover:bg-card hover:border-primary/30">
-      <div
-        className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBg}`}
-      >
+      <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${iconBg}`}>
         {icon}
       </div>
 
       <div className="flex-1 min-w-0">
-  <div className="flex items-center justify-between">
-    <h3 className="font-semibold">
-      {title}
-    </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="font-semibold">{title}</h3>
 
-    <span
-      className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeColor}`}
-    >
-      {badge}
-    </span>
-  </div>
+          <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${badgeColor}`}>
+            {badge}
+          </span>
+        </div>
 
-  <p className="mt-2 text-sm leading-relaxed text-muted-foreground">
-    {description}
-  </p>
-</div>
+        <p className="mt-2 text-sm leading-relaxed text-muted-foreground">{description}</p>
+      </div>
     </div>
   );
 }
@@ -143,9 +132,7 @@ export function SmartInsights() {
     const todayRows = data.attendance.filter((a) => a.date === today);
     const todayRate = todayRows.length
       ? Math.round(
-          (todayRows.filter((a) => a.status === "present").length /
-            todayRows.length) *
-            100
+          (todayRows.filter((a) => a.status === "present").length / todayRows.length) * 100,
         )
       : 0;
     const collected = data.fees
@@ -162,13 +149,9 @@ export function SmartInsights() {
         </div>
 
         <div>
-          <h2 className="text-xl font-semibold">
-            Today's Insights
-          </h2>
+          <h2 className="text-xl font-semibold">Today's Insights</h2>
 
-          <p className="text-sm text-muted-foreground">
-           Powered by your classroom activity.
-          </p>
+          <p className="text-sm text-muted-foreground">Powered by your classroom activity.</p>
         </div>
       </div>
 
@@ -180,10 +163,7 @@ export function SmartInsights() {
               className="h-[86px] animate-pulse rounded-xl border border-border/60 bg-card/40"
             />
           ))}
-        {!isLoading &&
-          insights.map((insight) => (
-          <InsightRow key={insight.id} {...insight} />
-        ))}
+        {!isLoading && insights.map((insight) => <InsightRow key={insight.id} {...insight} />)}
       </div>
 
       {!isLoading && summary && (
@@ -198,7 +178,9 @@ export function SmartInsights() {
           </div>
           <div className="text-center">
             <p className="text-xs text-muted-foreground">Collected</p>
-            <p className="mt-1 text-lg font-semibold">₹{Math.round(summary.collected).toLocaleString("en-IN")}</p>
+            <p className="mt-1 text-lg font-semibold">
+              ₹{Math.round(summary.collected).toLocaleString("en-IN")}
+            </p>
           </div>
         </div>
       )}

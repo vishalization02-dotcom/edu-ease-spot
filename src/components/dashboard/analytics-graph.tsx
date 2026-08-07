@@ -15,32 +15,20 @@ function CustomTooltip({ active, payload, label }: any) {
 
   return (
     <div className="rounded-xl border border-border bg-background p-4 shadow-xl">
-      <p className="mb-3 text-sm font-semibold">
-        Day {label}
-      </p>
+      <p className="mb-3 text-sm font-semibold">Day {label}</p>
 
       <div className="space-y-2">
-
         <div className="flex items-center justify-between gap-6">
-          <span className="text-sm text-muted-foreground">
-            Current
-          </span>
+          <span className="text-sm text-muted-foreground">Current</span>
 
-          <span className="font-semibold text-blue-500">
-            ₹{payload[1].value.toLocaleString()}
-          </span>
+          <span className="font-semibold text-blue-500">₹{payload[1].value.toLocaleString()}</span>
         </div>
 
         <div className="flex items-center justify-between gap-6">
-          <span className="text-sm text-muted-foreground">
-            Previous
-          </span>
+          <span className="text-sm text-muted-foreground">Previous</span>
 
-          <span className="font-semibold text-amber-500">
-            ₹{payload[0].value.toLocaleString()}
-          </span>
+          <span className="font-semibold text-amber-500">₹{payload[0].value.toLocaleString()}</span>
         </div>
-
       </div>
     </div>
   );
@@ -60,70 +48,26 @@ export default function AnalyticsGraph() {
           }}
         >
           <defs>
+            <linearGradient id="currentGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#3b82f6" stopOpacity={0.35} />
 
-            <linearGradient
-              id="currentGradient"
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop
-                offset="0%"
-                stopColor="#3b82f6"
-                stopOpacity={0.35}
-              />
-
-              <stop
-                offset="100%"
-                stopColor="#3b82f6"
-                stopOpacity={0}
-              />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0} />
             </linearGradient>
 
-            <linearGradient
-              id="previousGradient"
-              x1="0"
-              y1="0"
-              x2="0"
-              y2="1"
-            >
-              <stop
-                offset="0%"
-                stopColor="#f59e0b"
-                stopOpacity={0.25}
-              />
+            <linearGradient id="previousGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#f59e0b" stopOpacity={0.25} />
 
-              <stop
-                offset="100%"
-                stopColor="#f59e0b"
-                stopOpacity={0}
-              />
+              <stop offset="100%" stopColor="#f59e0b" stopOpacity={0} />
             </linearGradient>
-
           </defs>
 
-          <CartesianGrid
-            strokeDasharray="4 4"
-            vertical={false}
-            opacity={0.12}
-          />
+          <CartesianGrid strokeDasharray="4 4" vertical={false} opacity={0.12} />
 
-          <XAxis
-            dataKey="day"
-            tickLine={false}
-            axisLine={false}
-          />
+          <XAxis dataKey="day" tickLine={false} axisLine={false} />
 
-          <YAxis
-            tickLine={false}
-            axisLine={false}
-          />
+          <YAxis tickLine={false} axisLine={false} />
 
-          <Tooltip
-            cursor={false}
-            content={<CustomTooltip />}
-          />
+          <Tooltip cursor={false} content={<CustomTooltip />} />
 
           <Area
             type="monotone"
@@ -148,7 +92,6 @@ export default function AnalyticsGraph() {
               r: 7,
             }}
           />
-
         </AreaChart>
       </ResponsiveContainer>
     </div>

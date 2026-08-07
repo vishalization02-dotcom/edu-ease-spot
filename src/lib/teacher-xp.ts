@@ -142,7 +142,14 @@ type RawData = {
   classes: { id: string; created_at: string }[];
   students: { id: string; class_id: string; parent_phone: string | null; created_at: string }[];
   attendance: { student_id: string; date: string; status: string; created_at: string }[];
-  fees: { student_id: string; month: string; amount: number; status: string; payment_date: string | null; created_at: string }[];
+  fees: {
+    student_id: string;
+    month: string;
+    amount: number;
+    status: string;
+    payment_date: string | null;
+    created_at: string;
+  }[];
 };
 
 export async function fetchTeacherXpData(): Promise<RawData> {
@@ -199,7 +206,8 @@ export function computeTeacherXp(data: RawData, now = new Date()): TeacherXp {
   for (const [key, marked] of markedPerClassDay) {
     const classId = key.split("|")[0]!;
     const size = classSize.get(classId) ?? 0;
-    if (size > 0 && marked.size === size && (perClassDay.get(key)?.size ?? 0) === size) perfectDays++;
+    if (size > 0 && marked.size === size && (perClassDay.get(key)?.size ?? 0) === size)
+      perfectDays++;
   }
 
   /* --- monthly attendance above 90% --- */
@@ -254,7 +262,9 @@ export function computeTeacherXp(data: RawData, now = new Date()): TeacherXp {
   const xpForNextLevel = next ? next.minXp : current.minXp;
   const xpRemaining = next ? Math.max(0, next.minXp - totalXp) : 0;
   const span = next ? next.minXp - current.minXp : 1;
-  const progress = isMaxLevel ? 100 : Math.min(100, Math.max(0, ((totalXp - current.minXp) / span) * 100));
+  const progress = isMaxLevel
+    ? 100
+    : Math.min(100, Math.max(0, ((totalXp - current.minXp) / span) * 100));
 
   const toReward = (level: number | null, unlocked: boolean): RewardInfo | null => {
     if (level === null) return null;
@@ -269,9 +279,7 @@ export function computeTeacherXp(data: RawData, now = new Date()): TeacherXp {
     students.map((s) => (s.parent_phone ?? "").replace(/\s+/g, "")).filter((p) => p.length > 0),
   ).size;
   const attendanceRate = attendance.length ? presentRecords.length / attendance.length : 0;
-  const firstActivity = [...classes, ...students]
-    .map((r) => r.created_at)
-    .sort()[0];
+  const firstActivity = [...classes, ...students].map((r) => r.created_at).sort()[0];
   const daysWithClassLedger = firstActivity
     ? Math.floor((now.getTime() - new Date(firstActivity).getTime()) / 86400000)
     : 0;
@@ -311,7 +319,13 @@ export function computeTeacherXp(data: RawData, now = new Date()): TeacherXp {
     mk("first-student", "First Student", students.length, 1, nth(students, 1)),
     mk("first-10k", "First ₹10,000 Earned", earned, 10000, feeDateAt(10000)),
     mk("attendance-100", "100 Attendance Records", attendance.length, 100, nth(attendance, 100)),
-    mk("attendance-1000", "1000 Attendance Records", attendance.length, 1000, nth(attendance, 1000)),
+    mk(
+      "attendance-1000",
+      "1000 Attendance Records",
+      attendance.length,
+      1000,
+      nth(attendance, 1000),
+    ),
     mk("students-100", "100 Students Guided", students.length, 100, nth(students, 100)),
     mk(
       "attendance-champion",
@@ -331,10 +345,18 @@ export function computeTeacherXp(data: RawData, now = new Date()): TeacherXp {
   const wsIso = iso(ws);
   const weekAttendance = attendance.filter((a) => a.date >= wsIso);
   const daysMarked = new Set(weekAttendance.map((a) => a.date)).size;
-  const feesThisWeek = paidFees.filter((f) => (f.payment_date ?? f.created_at.slice(0, 10)) >= wsIso).length;
+  const feesThisWeek = paidFees.filter(
+    (f) => (f.payment_date ?? f.created_at.slice(0, 10)) >= wsIso,
+  ).length;
   const studentsThisWeek = students.filter((s) => s.created_at.slice(0, 10) >= wsIso).length;
 
-  const chal = (id: string, title: string, cur: number, target: number, rewardXp: number): WeeklyChallenge => ({
+  const chal = (
+    id: string,
+    title: string,
+    cur: number,
+    target: number,
+    rewardXp: number,
+  ): WeeklyChallenge => ({
     id,
     title,
     current: Math.min(cur, target),

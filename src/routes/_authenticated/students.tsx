@@ -9,13 +9,52 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Textarea } from "@/components/ui/textarea";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { supabase } from "@/integrations/supabase/client";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { currentMonth, fetchAttendance, fetchClasses, fetchFees, fetchStudents, todayISO, type ClassRow, type Student } from "@/lib/classledger-data";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
+  currentMonth,
+  fetchAttendance,
+  fetchClasses,
+  fetchFees,
+  fetchStudents,
+  todayISO,
+  type ClassRow,
+  type Student,
+} from "@/lib/classledger-data";
 import { ClassSelector } from "@/components/class-selector";
 import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
@@ -48,7 +87,8 @@ function StudentsPage() {
   const studentIds = useMemo(() => (students.data ?? []).map((s) => s.id), [students.data]);
   // Last 90 days attendance only, scoped to this class's students
   const attFrom = useMemo(() => {
-    const d = new Date(); d.setDate(d.getDate() - 90);
+    const d = new Date();
+    d.setDate(d.getDate() - 90);
     return d.toISOString().slice(0, 10);
   }, []);
   const attendance = useQuery({
@@ -102,10 +142,24 @@ function StudentsPage() {
   return (
     <div className="space-y-5 max-w-6xl mx-auto animate-fade-in">
       <PageHeader icon={Users} title="Students" description="Add, edit, and search your learners.">
-          <ClassSelector classes={classes.data ?? []} value={classId} onChange={setClassId} placeholder="Select class" />
-          <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+        <ClassSelector
+          classes={classes.data ?? []}
+          value={classId}
+          onChange={setClassId}
+          placeholder="Select class"
+        />
+        <Dialog
+          open={open}
+          onOpenChange={(v) => {
+            setOpen(v);
+            if (!v) setEditing(null);
+          }}
+        >
           <DialogTrigger asChild>
-            <Button disabled={(classes.data ?? []).length === 0}><Plus className="h-4 w-4" />Add Student</Button>
+            <Button disabled={(classes.data ?? []).length === 0}>
+              <Plus className="h-4 w-4" />
+              Add Student
+            </Button>
           </DialogTrigger>
           <DialogContent className="max-w-lg rounded-2xl">
             <DialogHeader>
@@ -115,10 +169,14 @@ function StudentsPage() {
               student={editing}
               classes={classes.data ?? []}
               defaultClassId={classId}
-              onSaved={() => { setOpen(false); setEditing(null); qc.invalidateQueries({ queryKey: ["students"] }); }}
+              onSaved={() => {
+                setOpen(false);
+                setEditing(null);
+                qc.invalidateQueries({ queryKey: ["students"] });
+              }}
             />
           </DialogContent>
-          </Dialog>
+        </Dialog>
       </PageHeader>
 
       {(classes.data ?? []).length === 0 ? (
@@ -129,96 +187,164 @@ function StudentsPage() {
             description="Please create a class before adding students."
             action={
               <Link to="/classes">
-                <Button><Plus className="h-4 w-4" />Create Class</Button>
+                <Button>
+                  <Plus className="h-4 w-4" />
+                  Create Class
+                </Button>
               </Link>
             }
           />
         </Card>
       ) : (
         <>
-        <Card className="p-3">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-          <Input value={q} onChange={(e) => setQ(e.target.value)} placeholder="Search by name, course, parent, phone…" className="pl-9 h-11 border-transparent bg-muted/40" />
-        </div>
-        </Card>
+          <Card className="p-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input
+                value={q}
+                onChange={(e) => setQ(e.target.value)}
+                placeholder="Search by name, course, parent, phone…"
+                className="pl-9 h-11 border-transparent bg-muted/40"
+              />
+            </div>
+          </Card>
 
-        <Card className="overflow-hidden mt-5">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Student</TableHead>
-              <TableHead>Course</TableHead>
-              <TableHead className="text-right">Monthly Fee</TableHead>
-              <TableHead>Attendance</TableHead>
-              <TableHead>Fee Status</TableHead>
-              <TableHead className="text-right">Actions</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {students.isLoading && (
-              <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-8">Loading…</TableCell></TableRow>
-            )}
-            {!students.isLoading && filtered.length === 0 && (
-              <TableRow><TableCell colSpan={6} className="text-center text-sm text-muted-foreground py-10">No students yet. Add your first student to get started.</TableCell></TableRow>
-            )}
-            {filtered.map((s: Student) => {
-              const st = attStats.get(s.id);
-              const pct = st && st.total > 0 ? Math.round((st.present / st.total) * 100) : null;
-              const feeStatus = feeMap.get(s.id) ?? "pending";
-              return (
-                <TableRow key={s.id} className="group">
-                  <TableCell>
-                    <Link to="/students/$id" params={{ id: s.id }} className="font-medium hover:text-primary">
-                      {s.student_name}
-                    </Link>
-                    {s.parent_name && <div className="text-xs text-muted-foreground">Parent: {s.parent_name}</div>}
-                  </TableCell>
-                  <TableCell>{s.course}</TableCell>
-                  <TableCell className="text-right">₹{Number(s.monthly_fee).toLocaleString()}</TableCell>
-                  <TableCell>{pct == null ? <span className="text-muted-foreground text-xs">—</span> : `${pct}%`}</TableCell>
-                  <TableCell>
-                    {feeStatus === "paid" ? (
-                      <Badge className="bg-success text-success-foreground hover:bg-success/90">Paid</Badge>
-                    ) : (
-                      <Badge variant="destructive">Pending</Badge>
-                    )}
-                  </TableCell>
-                  <TableCell className="text-right">
-                    <div className="inline-flex gap-1 opacity-70 transition-opacity group-hover:opacity-100">
-                        <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => { setEditing(s); setOpen(true); }}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <AlertDialog>
-                        <AlertDialogTrigger asChild>
-                          <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
-                        </AlertDialogTrigger>
-                        <AlertDialogContent>
-                          <AlertDialogHeader>
-                            <AlertDialogTitle>Delete {s.student_name}?</AlertDialogTitle>
-                            <AlertDialogDescription>This will also delete attendance and fee records for this student.</AlertDialogDescription>
-                          </AlertDialogHeader>
-                          <AlertDialogFooter>
-                            <AlertDialogCancel>Cancel</AlertDialogCancel>
-                            <AlertDialogAction onClick={() => handleDelete(s.id)}>Delete</AlertDialogAction>
-                          </AlertDialogFooter>
-                        </AlertDialogContent>
-                      </AlertDialog>
-                    </div>
-                  </TableCell>
+          <Card className="overflow-hidden mt-5">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead>Student</TableHead>
+                  <TableHead>Course</TableHead>
+                  <TableHead className="text-right">Monthly Fee</TableHead>
+                  <TableHead>Attendance</TableHead>
+                  <TableHead>Fee Status</TableHead>
+                  <TableHead className="text-right">Actions</TableHead>
                 </TableRow>
-              );
-            })}
-          </TableBody>
-        </Table>
-        </Card>
+              </TableHeader>
+              <TableBody>
+                {students.isLoading && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-sm text-muted-foreground py-8"
+                    >
+                      Loading…
+                    </TableCell>
+                  </TableRow>
+                )}
+                {!students.isLoading && filtered.length === 0 && (
+                  <TableRow>
+                    <TableCell
+                      colSpan={6}
+                      className="text-center text-sm text-muted-foreground py-10"
+                    >
+                      No students yet. Add your first student to get started.
+                    </TableCell>
+                  </TableRow>
+                )}
+                {filtered.map((s: Student) => {
+                  const st = attStats.get(s.id);
+                  const pct = st && st.total > 0 ? Math.round((st.present / st.total) * 100) : null;
+                  const feeStatus = feeMap.get(s.id) ?? "pending";
+                  return (
+                    <TableRow key={s.id} className="group">
+                      <TableCell>
+                        <Link
+                          to="/students/$id"
+                          params={{ id: s.id }}
+                          className="font-medium hover:text-primary"
+                        >
+                          {s.student_name}
+                        </Link>
+                        {s.parent_name && (
+                          <div className="text-xs text-muted-foreground">
+                            Parent: {s.parent_name}
+                          </div>
+                        )}
+                      </TableCell>
+                      <TableCell>{s.course}</TableCell>
+                      <TableCell className="text-right">
+                        ₹{Number(s.monthly_fee).toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        {pct == null ? (
+                          <span className="text-muted-foreground text-xs">—</span>
+                        ) : (
+                          `${pct}%`
+                        )}
+                      </TableCell>
+                      <TableCell>
+                        {feeStatus === "paid" ? (
+                          <Badge className="bg-success text-success-foreground hover:bg-success/90">
+                            Paid
+                          </Badge>
+                        ) : (
+                          <Badge variant="destructive">Pending</Badge>
+                        )}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="inline-flex gap-1 opacity-70 transition-opacity group-hover:opacity-100">
+                          <Button
+                            size="icon"
+                            variant="ghost"
+                            className="h-9 w-9"
+                            onClick={() => {
+                              setEditing(s);
+                              setOpen(true);
+                            }}
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button
+                                size="icon"
+                                variant="ghost"
+                                className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Delete {s.student_name}?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  This will also delete attendance and fee records for this student.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => handleDelete(s.id)}>
+                                  Delete
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  );
+                })}
+              </TableBody>
+            </Table>
+          </Card>
         </>
       )}
     </div>
   );
 }
 
-function StudentForm({ student, classes, defaultClassId, onSaved }: { student: Student | null; classes: ClassRow[]; defaultClassId?: string; onSaved: () => void }) {
+function StudentForm({
+  student,
+  classes,
+  defaultClassId,
+  onSaved,
+}: {
+  student: Student | null;
+  classes: ClassRow[];
+  defaultClassId?: string;
+  onSaved: () => void;
+}) {
   const [name, setName] = useState(student?.student_name ?? "");
   const [parentName, setParentName] = useState(student?.parent_name ?? "");
   const [parentPhone, setParentPhone] = useState(student?.parent_phone ?? "");
@@ -226,7 +352,9 @@ function StudentForm({ student, classes, defaultClassId, onSaved }: { student: S
   const [fee, setFee] = useState(String(student?.monthly_fee ?? ""));
   const [joining, setJoining] = useState(student?.joining_date ?? todayISO());
   const [notes, setNotes] = useState(student?.notes ?? "");
-  const [classId, setClassId] = useState<string>(student?.class_id ?? defaultClassId ?? classes[0]?.id ?? "");
+  const [classId, setClassId] = useState<string>(
+    student?.class_id ?? defaultClassId ?? classes[0]?.id ?? "",
+  );
   const [saving, setSaving] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
@@ -239,7 +367,10 @@ function StudentForm({ student, classes, defaultClassId, onSaved }: { student: S
     setSaving(true);
     const { data: userData } = await supabase.auth.getUser();
     const teacherId = userData.user?.id;
-    if (!teacherId) { setSaving(false); return toast.error("Not signed in"); }
+    if (!teacherId) {
+      setSaving(false);
+      return toast.error("Not signed in");
+    }
     const payload = {
       student_name: name.trim(),
       parent_name: parentName.trim() || null,
@@ -264,25 +395,62 @@ function StudentForm({ student, classes, defaultClassId, onSaved }: { student: S
       <div className="space-y-1.5">
         <Label>Class</Label>
         <Select value={classId} onValueChange={setClassId}>
-          <SelectTrigger><SelectValue placeholder="Select class" /></SelectTrigger>
+          <SelectTrigger>
+            <SelectValue placeholder="Select class" />
+          </SelectTrigger>
           <SelectContent>
-            {classes.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+            {classes.map((c) => (
+              <SelectItem key={c.id} value={c.id}>
+                {c.name}
+              </SelectItem>
+            ))}
           </SelectContent>
         </Select>
       </div>
-      <div className="space-y-1.5"><Label>Student name</Label><Input value={name} onChange={(e) => setName(e.target.value)} /></div>
-      <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5"><Label>Parent name</Label><Input value={parentName} onChange={(e) => setParentName(e.target.value)} /></div>
-        <div className="space-y-1.5"><Label>Parent phone</Label><Input value={parentPhone} inputMode="tel" onChange={(e) => setParentPhone(e.target.value)} /></div>
+      <div className="space-y-1.5">
+        <Label>Student name</Label>
+        <Input value={name} onChange={(e) => setName(e.target.value)} />
       </div>
       <div className="grid grid-cols-2 gap-3">
-        <div className="space-y-1.5"><Label>Course / Class</Label><Input value={course} onChange={(e) => setCourse(e.target.value)} placeholder="e.g. Guitar Beginner" /></div>
-        <div className="space-y-1.5"><Label>Monthly fee (₹)</Label><Input value={fee} onChange={(e) => setFee(e.target.value)} inputMode="decimal" /></div>
+        <div className="space-y-1.5">
+          <Label>Parent name</Label>
+          <Input value={parentName} onChange={(e) => setParentName(e.target.value)} />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Parent phone</Label>
+          <Input
+            value={parentPhone}
+            inputMode="tel"
+            onChange={(e) => setParentPhone(e.target.value)}
+          />
+        </div>
       </div>
-      <div className="space-y-1.5"><Label>Joining date</Label><Input type="date" value={joining} onChange={(e) => setJoining(e.target.value)} /></div>
-      <div className="space-y-1.5"><Label>Notes (optional)</Label><Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} /></div>
+      <div className="grid grid-cols-2 gap-3">
+        <div className="space-y-1.5">
+          <Label>Course / Class</Label>
+          <Input
+            value={course}
+            onChange={(e) => setCourse(e.target.value)}
+            placeholder="e.g. Guitar Beginner"
+          />
+        </div>
+        <div className="space-y-1.5">
+          <Label>Monthly fee (₹)</Label>
+          <Input value={fee} onChange={(e) => setFee(e.target.value)} inputMode="decimal" />
+        </div>
+      </div>
+      <div className="space-y-1.5">
+        <Label>Joining date</Label>
+        <Input type="date" value={joining} onChange={(e) => setJoining(e.target.value)} />
+      </div>
+      <div className="space-y-1.5">
+        <Label>Notes (optional)</Label>
+        <Textarea rows={2} value={notes} onChange={(e) => setNotes(e.target.value)} />
+      </div>
       <DialogFooter>
-        <Button type="submit" size="lg" disabled={saving} className="w-full">{saving ? "Saving…" : student ? "Save changes" : "Add student"}</Button>
+        <Button type="submit" size="lg" disabled={saving} className="w-full">
+          {saving ? "Saving…" : student ? "Save changes" : "Add student"}
+        </Button>
       </DialogFooter>
     </form>
   );

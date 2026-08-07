@@ -9,8 +9,25 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+  DialogFooter,
+} from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
 import { fetchClasses, fetchStudents, type ClassRow } from "@/lib/classledger-data";
 import { PageHeader } from "@/components/page-header";
@@ -40,16 +57,35 @@ function ClassesPage() {
 
   return (
     <div className="space-y-5 max-w-5xl mx-auto animate-fade-in">
-      <PageHeader icon={BookOpen} title="Classes" description="Group students into classes or batches.">
-        <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) setEditing(null); }}>
+      <PageHeader
+        icon={BookOpen}
+        title="Classes"
+        description="Group students into classes or batches."
+      >
+        <Dialog
+          open={open}
+          onOpenChange={(v) => {
+            setOpen(v);
+            if (!v) setEditing(null);
+          }}
+        >
           <DialogTrigger asChild>
-            <Button><Plus className="h-4 w-4" />Add Class</Button>
+            <Button>
+              <Plus className="h-4 w-4" />
+              Add Class
+            </Button>
           </DialogTrigger>
           <DialogContent className="max-w-md rounded-2xl">
-            <DialogHeader><DialogTitle>{editing ? "Edit Class" : "Add Class"}</DialogTitle></DialogHeader>
+            <DialogHeader>
+              <DialogTitle>{editing ? "Edit Class" : "Add Class"}</DialogTitle>
+            </DialogHeader>
             <ClassForm
               row={editing}
-              onSaved={() => { setOpen(false); setEditing(null); qc.invalidateQueries({ queryKey: ["classes"] }); }}
+              onSaved={() => {
+                setOpen(false);
+                setEditing(null);
+                qc.invalidateQueries({ queryKey: ["classes"] });
+              }}
             />
           </DialogContent>
         </Dialog>
@@ -64,8 +100,14 @@ function ClassesPage() {
             title="No classes created yet."
             description="Create your first class to start adding students."
             action={
-              <Button onClick={() => { setEditing(null); setOpen(true); }}>
-                <Plus className="h-4 w-4" />Create Your First Class
+              <Button
+                onClick={() => {
+                  setEditing(null);
+                  setOpen(true);
+                }}
+              >
+                <Plus className="h-4 w-4" />
+                Create Your First Class
               </Button>
             }
           />
@@ -76,27 +118,53 @@ function ClassesPage() {
             <Card key={c.id} className="p-5 hover-lift hover:border-primary/40">
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0">
-                  <Link to="/classes/$id" params={{ id: c.id }} className="font-semibold truncate hover:text-primary block">
+                  <Link
+                    to="/classes/$id"
+                    params={{ id: c.id }}
+                    className="font-semibold truncate hover:text-primary block"
+                  >
                     {c.name}
                   </Link>
-                  {c.description && <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">{c.description}</div>}
+                  {c.description && (
+                    <div className="text-xs text-muted-foreground mt-0.5 line-clamp-2">
+                      {c.description}
+                    </div>
+                  )}
                 </div>
                 <div className="flex shrink-0 gap-1">
-                  <Button size="icon" variant="ghost" className="h-9 w-9" onClick={() => { setEditing(c); setOpen(true); }}>
+                  <Button
+                    size="icon"
+                    variant="ghost"
+                    className="h-9 w-9"
+                    onClick={() => {
+                      setEditing(c);
+                      setOpen(true);
+                    }}
+                  >
                     <Pencil className="h-4 w-4" />
                   </Button>
                   <AlertDialog>
                     <AlertDialogTrigger asChild>
-                      <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"><Trash2 className="h-4 w-4" /></Button>
+                      <Button
+                        size="icon"
+                        variant="ghost"
+                        className="h-9 w-9 text-destructive hover:bg-destructive/10 hover:text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
                     </AlertDialogTrigger>
                     <AlertDialogContent>
                       <AlertDialogHeader>
                         <AlertDialogTitle>Delete {c.name}?</AlertDialogTitle>
-                        <AlertDialogDescription>Classes with students can't be deleted. Move students first.</AlertDialogDescription>
+                        <AlertDialogDescription>
+                          Classes with students can't be deleted. Move students first.
+                        </AlertDialogDescription>
                       </AlertDialogHeader>
                       <AlertDialogFooter>
                         <AlertDialogCancel>Cancel</AlertDialogCancel>
-                        <AlertDialogAction onClick={() => handleDelete(c)}>Delete</AlertDialogAction>
+                        <AlertDialogAction onClick={() => handleDelete(c)}>
+                          Delete
+                        </AlertDialogAction>
                       </AlertDialogFooter>
                     </AlertDialogContent>
                   </AlertDialog>
@@ -104,10 +172,13 @@ function ClassesPage() {
               </div>
               <div className="mt-4 flex items-center justify-between gap-2">
                 <div className="text-sm text-muted-foreground">
-                  <span className="font-semibold text-foreground">{counts.get(c.id) ?? 0}</span> student{(counts.get(c.id) ?? 0) === 1 ? "" : "s"}
+                  <span className="font-semibold text-foreground">{counts.get(c.id) ?? 0}</span>{" "}
+                  student{(counts.get(c.id) ?? 0) === 1 ? "" : "s"}
                 </div>
                 <Link to="/classes/$id" params={{ id: c.id }}>
-                  <Button size="sm" variant="secondary">View details <ArrowRight className="h-4 w-4 ml-1" /></Button>
+                  <Button size="sm" variant="secondary">
+                    View details <ArrowRight className="h-4 w-4 ml-1" />
+                  </Button>
                 </Link>
               </div>
             </Card>
@@ -129,7 +200,10 @@ function ClassForm({ row, onSaved }: { row: ClassRow | null; onSaved: () => void
     setSaving(true);
     const { data: userData } = await supabase.auth.getUser();
     const teacherId = userData.user?.id;
-    if (!teacherId) { setSaving(false); return toast.error("Not signed in"); }
+    if (!teacherId) {
+      setSaving(false);
+      return toast.error("Not signed in");
+    }
     const payload = { name: name.trim(), description: desc.trim() || null };
     const res = row
       ? await supabase.from("classes").update(payload).eq("id", row.id)
@@ -142,10 +216,22 @@ function ClassForm({ row, onSaved }: { row: ClassRow | null; onSaved: () => void
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
-      <div className="space-y-1.5"><Label>Name</Label><Input value={name} onChange={(e) => setName(e.target.value)} placeholder="e.g. Class 10 Science" /></div>
-      <div className="space-y-1.5"><Label>Description (optional)</Label><Textarea rows={2} value={desc} onChange={(e) => setDesc(e.target.value)} /></div>
+      <div className="space-y-1.5">
+        <Label>Name</Label>
+        <Input
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          placeholder="e.g. Class 10 Science"
+        />
+      </div>
+      <div className="space-y-1.5">
+        <Label>Description (optional)</Label>
+        <Textarea rows={2} value={desc} onChange={(e) => setDesc(e.target.value)} />
+      </div>
       <DialogFooter>
-        <Button type="submit" size="lg" disabled={saving} className="w-full">{saving ? "Saving…" : row ? "Save changes" : "Create class"}</Button>
+        <Button type="submit" size="lg" disabled={saving} className="w-full">
+          {saving ? "Saving…" : row ? "Save changes" : "Create class"}
+        </Button>
       </DialogFooter>
     </form>
   );

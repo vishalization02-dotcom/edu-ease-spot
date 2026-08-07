@@ -63,15 +63,11 @@ function LegacyStat({
       dark:hover:bg-white/[0.035]
       "
     >
-      <div
-        className={`mb-2.5 flex h-8 w-8 items-center justify-center rounded-lg ${t.icon}`}
-      >
+      <div className={`mb-2.5 flex h-8 w-8 items-center justify-center rounded-lg ${t.icon}`}>
         <Icon className="h-4 w-4" />
       </div>
 
-      <p className="mb-1 text-[12px] font-medium text-slate-500 dark:text-slate-400">
-        {label}
-      </p>
+      <p className="mb-1 text-[12px] font-medium text-slate-500 dark:text-slate-400">{label}</p>
 
       <p
         className={`
@@ -166,7 +162,10 @@ export function TeachingLegacy() {
           to-transparent
           "
         >
-          <span className="absolute inset-0 rounded-full bg-rose-500/20 blur-md" aria-hidden="true" />
+          <span
+            className="absolute inset-0 rounded-full bg-rose-500/20 blur-md"
+            aria-hidden="true"
+          />
           <Heart className="relative h-4 w-4 text-rose-500 dark:text-rose-400" />
         </div>
         <div className="min-w-0">
@@ -179,7 +178,10 @@ export function TeachingLegacy() {
               : "Every number tells the story of your teaching journey."}
           </p>
         </div>
-        <Sparkles className="ml-auto h-4 w-4 shrink-0 animate-pulse text-rose-400/70 dark:text-rose-300/70" aria-hidden="true" />
+        <Sparkles
+          className="ml-auto h-4 w-4 shrink-0 animate-pulse text-rose-400/70 dark:text-rose-300/70"
+          aria-hidden="true"
+        />
       </div>
 
       <div className="grid flex-1 grid-cols-2 gap-2.5">
