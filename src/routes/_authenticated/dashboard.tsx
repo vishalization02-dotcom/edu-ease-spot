@@ -8,6 +8,8 @@ import { Button } from "@/components/ui/button";
 import { supabase } from "@/integrations/supabase/client";
 import { currentMonth, fetchFees, fetchStudents, todayISO, fetchAttendance, fetchClasses } from "@/lib/classledger-data";
 
+import { SpeedInsights } from "@vercel/speed-insights/next"
+
 // chatGPT
 import AnalyticsCard from "@/components/dashboard/analytics-card";
 import { MonthComparison } from "@/components/dashboard/MonthComparison";
@@ -390,9 +392,10 @@ const attendancePercentage =
     {/* <NoticeBoard /> */}
     {/* <ClassLedgerAI /> */}
        <TeachingLegacy />
+    
 
   </div>
-
+<SpeedInsights/>
 </div>
 <Footer />
     </div>
