@@ -39,7 +39,9 @@ function ProtectedLayout() {
       } = await supabase.auth.getUser();
 
       setEmail(user?.email ?? "");
-      const { data } = await supabase.from("teachers").select("full_name, logo_url").maybeSingle();
+      const { data } = await (supabase.from("teachers") as any)
+  .select("full_name, logo_url")
+  .maybeSingle();
 
       if (data) {
         setUserName(data.full_name.split(" ")[0]);

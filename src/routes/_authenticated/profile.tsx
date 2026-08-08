@@ -26,8 +26,7 @@ function ProfilePage() {
 
   useEffect(() => {
     async function load() {
-      const { data } = await supabase
-        .from("teachers")
+      const { data } = await (supabase.from("teachers") as any)
         .select("full_name, mobile, institute_name, logo_url")
         .maybeSingle();
 
@@ -81,8 +80,7 @@ function ProfilePage() {
 
       const publicUrl = data.publicUrl;
 
-      await supabase
-        .from("teachers")
+      await (supabase.from("teachers") as any)
         .update({
           logo_url: publicUrl,
         })

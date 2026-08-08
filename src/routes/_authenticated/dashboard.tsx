@@ -485,6 +485,7 @@ function RecentActivity() {
 
   type Item = {
     when: string;
+    at?: string;
     title: string;
     subtitle: string;
     kind: "fee" | "att" | "new";
@@ -496,6 +497,7 @@ function RecentActivity() {
       const name = studentsById.get(f.student_id)?.student_name ?? "Student";
       items.push({
         when: f.payment_date!,
+        at: f.created_at,
         title: name,
         subtitle: `Collected ₹${Number(f.amount).toLocaleString()}`,
         kind: "fee",
@@ -505,6 +507,7 @@ function RecentActivity() {
     const name = studentsById.get(a.student_id)?.student_name ?? "Student";
     items.push({
       when: a.date,
+      at: a.created_at,
       title: name,
       subtitle: a.status === "present" ? "Attendance marked Present" : "Attendance marked Absent",
       kind: "att",
@@ -513,13 +516,18 @@ function RecentActivity() {
   (students.data ?? []).forEach((s) => {
     items.push({
       when: s.created_at.slice(0, 10),
+      at: s.created_at,
       title: s.student_name,
       subtitle: "New student enrolled",
       kind: "new",
     });
   });
 
-  items.sort((a, b) => (a.when < b.when ? 1 : -1));
+  items.sort((a, b) => {
+    const av = a.at ?? a.when;
+    const bv = b.at ?? b.when;
+    return av < bv ? 1 : av > bv ? -1 : 0;
+  });
   const top = items.slice(0, 8);
   if (top.length === 0)
     return (
@@ -556,9 +564,9 @@ function RecentActivity() {
                 : "bg-emerald-400"
               : "bg-violet-400";
 
-        const date = new Date(i.when);
+        const stamp = i.at ? new Date(i.at) : null;
 
-        const day = getRelativeDay(i.when);
+      const day = getRelativeDay(i.at ?? i.when);
 
         return (
           <div
@@ -585,12 +593,14 @@ function RecentActivity() {
               <div className="text-right">
                 <div className="text-sm font-semibold">{day}</div>
 
-                <div className="text-xs text-muted-foreground">
-                  {date.toLocaleTimeString([], {
+                  {stamp && (
+                 <div className="text-xs text-muted-foreground">
+                  {stamp.toLocaleTimeString([], {
                     hour: "2-digit",
                     minute: "2-digit",
                   })}
                 </div>
+              )}
               </div>
 
               <div className={`h-3 w-3 rounded-full ${dotColor}`} />

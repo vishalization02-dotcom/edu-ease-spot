@@ -27,6 +27,7 @@ export type AttendanceRow = {
   student_id: string;
   date: string;
   status: "present" | "absent";
+  created_at?: string;
 };
 
 export type FeeRow = {
@@ -36,6 +37,7 @@ export type FeeRow = {
   amount: number;
   status: "paid" | "pending";
   payment_date: string | null;
+  created_at?: string;
 };
 
 export function currentMonth(d = new Date()) {

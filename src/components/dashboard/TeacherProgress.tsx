@@ -110,12 +110,12 @@ export function TeacherProgress() {
 
       <div className=" mt-5 flex justify-center">
         <button
-          onClick={() => setOpen(true)}
-          className="group flex items-center gap-2 text-x font-semibold text-violet-400 transition-all duration-300 hover:text-violet-300"
-        >
-          View All Rewards
-          <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
-        </button>
+  onClick={() => setOpen(true)}
+  className="group flex cursor-pointer items-center gap-2 text-x font-semibold text-violet-400 transition-all duration-300 hover:text-violet-300"
+>
+  View All Rewards
+  <ChevronRight className="h-4 w-4 transition-transform duration-300 group-hover:translate-x-1" />
+</button>
       </div>
 
       <RewardsDialog open={open} onOpenChange={setOpen} xp={xp} />
