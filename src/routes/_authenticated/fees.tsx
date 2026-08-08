@@ -3,7 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { Wallet, Users } from "lucide-react";
+import { Wallet, Users, CreditCard } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -25,6 +25,7 @@ export const Route = createFileRoute("/_authenticated/fees")({
 function FeesPage() {
   const qc = useQueryClient();
   const [month, setMonth] = useState(currentMonth());
+  const [paymentLoading, setPaymentLoading] = useState<string | null>(null);
   const { classId: classIdParam } = Route.useSearch();
   const [classId, setClassId] = useState<string | undefined>(classIdParam);
 
@@ -92,7 +93,111 @@ function FeesPage() {
     toast.success(status === "paid" ? "Marked as paid" : "Marked as pending");
     qc.invalidateQueries({ queryKey: ["fees"] });
   }
+async function createPaymentLink(
+  studentId: string,
+  monthlyFee: number,
+  existingFeeId?: string
+) {
+  try {
+    setPaymentLoading(studentId);
 
+    let feeId = existingFeeId;
+
+    // ---------------------------------------------
+    // Make sure a fee record exists first
+    // ---------------------------------------------
+    if (!feeId) {
+      const { data: userData } = await supabase.auth.getUser();
+      const teacherId = userData.user?.id;
+
+      if (!teacherId) {
+        toast.error("Not signed in");
+        return;
+      }
+
+      const { data: fee, error: feeError } = await supabase
+        .from("fees")
+        .upsert(
+          {
+            teacher_id: teacherId,
+            student_id: studentId,
+            month,
+            amount: monthlyFee,
+            status: "pending",
+          },
+          {
+            onConflict: "student_id,month",
+          }
+        )
+        .select("id")
+        .single();
+
+      if (feeError || !fee) {
+        toast.error(feeError?.message ?? "Could not create fee record");
+        return;
+      }
+
+      feeId = fee.id;
+
+      // Refresh fees so the new record appears in the UI
+      await qc.invalidateQueries({
+        queryKey: ["fees"],
+      });
+    }
+
+    // ---------------------------------------------
+    // Call our Supabase Edge Function
+    // ---------------------------------------------
+    const { data, error } = await supabase.functions.invoke(
+      "create-payment-link",
+      {
+        body: {
+          fee_id: feeId,
+        },
+      }
+    );
+
+    if (error) {
+      console.error("Payment function error:", error);
+      toast.error(error.message || "Could not create payment link");
+      return;
+    }
+
+    if (!data?.success || !data?.payment_link_url) {
+      toast.error(
+        data?.error || "Payment link could not be created"
+      );
+      return;
+    }
+
+    // ---------------------------------------------
+    // Success
+    // ---------------------------------------------
+    toast.success("Payment link created!");
+
+    // Open Razorpay test payment page
+    window.open(
+      data.payment_link_url,
+      "_blank",
+      "noopener,noreferrer"
+    );
+
+    // Refresh fee data
+    await qc.invalidateQueries({
+      queryKey: ["fees"],
+    });
+  } catch (error) {
+    console.error("Payment link error:", error);
+
+    toast.error(
+      error instanceof Error
+        ? error.message
+        : "Something went wrong"
+    );
+  } finally {
+    setPaymentLoading(null);
+  }
+}
   return (
     <div className="space-y-5 max-w-5xl mx-auto animate-fade-in">
       <PageHeader icon={Wallet} title="Fees" description="Track monthly fee collection.">
@@ -178,22 +283,56 @@ function FeesPage() {
                   <Badge variant="destructive">Pending</Badge>
                 )}
                 {status === "paid" ? (
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => setStatus(s.id, Number(s.monthly_fee), "pending")}
-                  >
-                    Mark Pending
-                  </Button>
-                ) : (
-                  <Button
-                    size="sm"
-                    className="bg-success hover:bg-success/90 text-success-foreground"
-                    onClick={() => setStatus(s.id, Number(s.monthly_fee), "paid")}
-                  >
-                    Mark Paid
-                  </Button>
-                )}
+  <Button
+    variant="outline"
+    size="sm"
+    onClick={() =>
+      setStatus(
+        s.id,
+        Number(s.monthly_fee),
+        "pending"
+      )
+    }
+  >
+    Mark Pending
+  </Button>
+) : (
+  <>
+    <Button
+      variant="outline"
+      size="sm"
+      disabled={paymentLoading === s.id}
+      onClick={() =>
+        createPaymentLink(
+          s.id,
+          Number(s.monthly_fee),
+          f?.id
+        )
+      }
+      className="gap-1.5"
+    >
+      <CreditCard className="h-4 w-4" />
+
+      {paymentLoading === s.id
+        ? "Creating..."
+        : "Payment Link"}
+    </Button>
+
+    <Button
+      size="sm"
+      className="bg-success hover:bg-success/90 text-success-foreground"
+      onClick={() =>
+        setStatus(
+          s.id,
+          Number(s.monthly_fee),
+          "paid"
+        )
+      }
+    >
+      Mark Paid
+    </Button>
+  </>
+)}
               </div>
             </div>
           );

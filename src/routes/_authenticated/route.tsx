@@ -81,21 +81,21 @@ function ProtectedLayout() {
               {/* Notification */}
 
               <button
-                aria-label="Notifications"
-                className="relative flex h-10 w-10 items-center justify-center rounded-xl border border-border/70 bg-background/60 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 hover:text-primary"
-              >
-                <Bell className="h-[18px] w-[18px] text-muted-foreground" />
+  aria-label="Notifications"
+  className="group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border/70 bg-background/60 transition-all duration-300 hover:scale-105 hover:border-violet-500/60 hover:bg-background hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
+>
+  <Bell className="h-[18px] w-[18px] text-muted-foreground transition-all duration-300 group-hover:text-violet-400 group-hover:drop-shadow-[0_0_10px_rgba(139,92,246,0.9)]" />
 
-                <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-destructive px-1 text-[10px] font-bold text-destructive-foreground ring-2 ring-card">
-                  3
-                </span>
-              </button>
+  <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-card shadow-[0_0_10px_rgba(239,68,68,0.7)]">
+    3
+  </span>
+</button>
 
               {/* Profile */}
 
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
-                  <button className="group flex h-10 items-center gap-2.5 rounded-xl border border-border/70 bg-background/60 px-2 transition-all duration-200 hover:border-primary/40 hover:bg-accent/50 md:px-3">
+               <button className="group flex h-10 cursor-pointer items-center gap-2.5 rounded-xl border border-border/70 bg-card/80 px-2 transition-all duration-300 hover:scale-[1.02] hover:border-violet-500/60 hover:shadow-[0_0_20px_rgba(139,92,246,0.25)] md:px-3">
                     <div className="flex h-9 w-9 overflow-hidden rounded-full border-2 border-primary/20 bg-background shadow-sm">
                       {logoUrl ? (
                         <img
@@ -124,29 +124,29 @@ function ProtectedLayout() {
 
                 <DropdownMenuContent align="end" className="w-56 rounded-xl p-1.5">
                   <DropdownMenuItem
-                    className="rounded-lg py-2"
-                    onClick={() => navigate({ to: "/profile" })}
-                  >
+  className="cursor-pointer rounded-lg py-2 transition-colors hover:bg-primary/10"
+  onClick={() => router.navigate({ to: "/profile" })}
+>
                     <User className="mr-2 h-4 w-4" />
                     My Profile
                   </DropdownMenuItem>
 
                   <DropdownMenuItem
-                    className="rounded-lg py-2"
-                    onClick={() => navigate({ to: "/settings" })}
-                  >
+  className="cursor-pointer rounded-lg py-2 transition-colors hover:bg-primary/10"
+  onClick={() => router.navigate({ to: "/settings" })}
+>
                     <Settings className="mr-2 h-4 w-4" />
                     Settings
                   </DropdownMenuItem>
 
                   <DropdownMenuSeparator />
 
-                  <DropdownMenuItem
-                    onClick={async () => {
-                      await supabase.auth.signOut();
-                    }}
-                    className="rounded-lg py-2 text-destructive focus:text-destructive"
-                  >
+                 <DropdownMenuItem
+  className="cursor-pointer rounded-lg py-2 text-destructive transition-colors hover:bg-destructive/10 focus:text-destructive"
+  onClick={async () => {
+    await supabase.auth.signOut();
+  }}
+>
                     <LogOut className="mr-2 h-4 w-4" />
                     Logout
                   </DropdownMenuItem>

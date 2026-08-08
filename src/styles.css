@@ -225,3 +225,11 @@
   width: 3rem;
   border-radius: 0.875rem;
 }
+button,
+a,
+[role="button"],
+[data-radix-collection-item],
+[data-radix-dropdown-menu-trigger],
+[data-radix-dropdown-menu-item] {
+  cursor: pointer;
+}

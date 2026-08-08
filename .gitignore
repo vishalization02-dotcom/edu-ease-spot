@@ -34,3 +34,6 @@ dist-ssr
 .env
 .env.*
 !.env.example
+
+supabase/.temp/
+test-webhook.cjs

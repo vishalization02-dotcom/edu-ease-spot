@@ -163,23 +163,6 @@ function ProfilePage() {
               </CardContent>
             </Card>
 
-            {/* <Card>
-              <CardContent className="flex items-center gap-4 p-5">
-
-                <Mail className="text-primary" />
-
-                <div>
-
-                  <p className="text-sm text-muted-foreground">
-                    Email
-                  </p>
-
-                  <p>{email}</p>
-
-                </div>
-
-              </CardContent>
-            </Card> */}
 
             <Card>
               <CardContent className="flex items-center gap-4 p-4">
