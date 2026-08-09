@@ -2,12 +2,16 @@ import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
 import { SidebarProvider, SidebarInset, SidebarTrigger } from "@/components/ui/sidebar";
 import { AppSidebar } from "@/components/app-sidebar";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "@tanstack/react-router";
 import { useNavigate } from "@tanstack/react-router";
 // import ProfileDialog from "@/components/profile/ProfileDialog";
 import { Bell, ChevronDown, Settings, LogOut, User } from "lucide-react";
-
+import { useQuery } from "@tanstack/react-query";
+import {
+  fetchFees,
+  fetchStudents,
+} from "@/lib/classledger-data";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -24,7 +28,19 @@ export const Route = createFileRoute("/_authenticated")({
   },
   component: ProtectedLayout,
 });
+function getPreviousMonth(): string {
+  const now = new Date();
 
+  const previousMonth = new Date(
+    now.getFullYear(),
+    now.getMonth() - 1,
+    1
+  );
+
+  return `${previousMonth.getFullYear()}-${String(
+    previousMonth.getMonth() + 1
+  ).padStart(2, "0")}`;
+}
 function ProtectedLayout() {
   const navigate = useNavigate();
   const router = useRouter();
@@ -32,6 +48,90 @@ function ProtectedLayout() {
   const [logoUrl, setLogoUrl] = useState("");
   // const [profileOpen, setProfileOpen] = useState(false);
   const [email, setEmail] = useState("");
+  const previousMonth = getPreviousMonth();
+
+const notificationStudents = useQuery({
+  queryKey: ["header-notification-students"],
+  queryFn: () => fetchStudents(),
+});
+
+const eligibleNotificationStudents = useMemo(() => {
+  if (!notificationStudents.data) return [];
+
+  const [year, monthNumber] = previousMonth
+    .split("-")
+    .map(Number);
+
+  const monthStart = new Date(
+    year,
+    monthNumber - 1,
+    1
+  );
+
+  const nextMonthStart = new Date(
+    year,
+    monthNumber,
+    1
+  );
+
+  return notificationStudents.data.filter((student) => {
+    if (!student.joining_date) return false;
+
+    const joiningDate = new Date(
+      student.joining_date
+    );
+
+    /*
+     * Only students who joined during the
+     * previous month are checked for the
+     * notification.
+     */
+    return (
+      joiningDate >= monthStart &&
+      joiningDate < nextMonthStart
+    );
+  });
+}, [
+  notificationStudents.data,
+  previousMonth,
+]);
+
+const notificationStudentIds =
+  eligibleNotificationStudents.map(
+    (student) => student.id
+  );
+
+const notificationFees = useQuery({
+  queryKey: [
+    "header-notification-fees",
+    previousMonth,
+    notificationStudentIds,
+  ],
+  queryFn: () =>
+    fetchFees({
+      month: previousMonth,
+      studentIds: notificationStudentIds,
+    }),
+  enabled: notificationStudentIds.length > 0,
+});
+
+const notificationFeeMap = useMemo(
+  () =>
+    new Map(
+      (notificationFees.data ?? []).map((fee) => [
+        fee.student_id,
+        fee,
+      ])
+    ),
+  [notificationFees.data]
+);
+
+const pendingNotificationCount =
+  eligibleNotificationStudents.filter((student) => {
+    const fee = notificationFeeMap.get(student.id);
+
+    return !fee || fee.status !== "paid";
+  }).length;
   useEffect(() => {
     async function loadProfile() {
       const {
@@ -79,16 +179,26 @@ function ProtectedLayout() {
 
             <div className="flex shrink-0 items-center gap-2 md:gap-3">
               {/* Notification */}
+{/* Notification */}
 
-              <button
+<button
   aria-label="Notifications"
+  onClick={() =>
+    navigate({
+      to: "/notifications",
+    })
+  }
   className="group relative flex h-10 w-10 cursor-pointer items-center justify-center rounded-xl border border-border/70 bg-background/60 transition-all duration-300 hover:scale-105 hover:border-violet-500/60 hover:bg-background hover:shadow-[0_0_20px_rgba(139,92,246,0.35)]"
 >
-  <Bell className="h-[18px] w-[18px] text-muted-foreground transition-all duration-300 group-hover:text-violet-400 group-hover:drop-shadow-[0_0_10px_rgba(139,92,246,0.9)]" />
+  <Bell className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
 
-  <span className="absolute -right-1 -top-1 flex h-[18px] min-w-[18px] items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-card shadow-[0_0_10px_rgba(239,68,68,0.7)]">
-    3
-  </span>
+  {pendingNotificationCount > 0 && (
+    <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-[10px] font-bold text-white shadow-[0_0_12px_rgba(239,68,68,0.5)]">
+      {pendingNotificationCount > 99
+        ? "99+"
+        : pendingNotificationCount}
+    </span>
+  )}
 </button>
 
               {/* Profile */}

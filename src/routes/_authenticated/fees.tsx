@@ -17,17 +17,49 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/fees")({
-  validateSearch: (search: Record<string, unknown>): { classId?: string } =>
-    typeof search.classId === "string" ? { classId: search.classId } : {},
+  validateSearch: (
+    search: Record<string, unknown>
+  ): {
+    classId?: string;
+    month?: string;
+    studentId?: string;
+  } => ({
+    classId:
+      typeof search.classId === "string"
+        ? search.classId
+        : undefined,
+
+    month:
+      typeof search.month === "string"
+        ? search.month
+        : undefined,
+
+    studentId:
+      typeof search.studentId === "string"
+        ? search.studentId
+        : undefined,
+  }),
+
   component: FeesPage,
 });
 
 function FeesPage() {
   const qc = useQueryClient();
-  const [month, setMonth] = useState(currentMonth());
+  // const [month, setMonth] = useState(currentMonth());
   const [paymentLoading, setPaymentLoading] = useState<string | null>(null);
-  const { classId: classIdParam } = Route.useSearch();
-  const [classId, setClassId] = useState<string | undefined>(classIdParam);
+  const {
+  classId: classIdParam,
+  month: monthParam,
+  studentId: studentIdParam,
+} = Route.useSearch();
+
+const [classId, setClassId] = useState<string | undefined>(
+  classIdParam
+);
+
+const [month, setMonth] = useState(
+  monthParam ?? currentMonth()
+);
 
   const classes = useQuery({ queryKey: ["classes"], queryFn: fetchClasses });
   useEffect(() => {
@@ -35,11 +67,40 @@ function FeesPage() {
   }, [classes.data, classId, classIdParam]);
 
   const students = useQuery({
-    queryKey: ["students", "class", classId ?? ""],
-    queryFn: () => fetchStudents(classId),
-    enabled: !!classId,
+  queryKey: ["students", "class", classId ?? ""],
+  queryFn: () => fetchStudents(classId),
+  enabled: !!classId,
+});
+
+const visibleStudents = useMemo(() => {
+  if (!students.data) return [];
+
+  const [year, monthNumber] = month.split("-").map(Number);
+
+  // First day of the month after the selected month
+  const nextMonthStart = new Date(
+    year,
+    monthNumber,
+    1
+  );
+
+  return students.data.filter((student) => {
+    if (!student.joining_date) return false;
+
+    const joiningDate = new Date(
+      student.joining_date
+    );
+
+    // Student must have joined on or before
+    // the selected month.
+    return joiningDate < nextMonthStart;
   });
-  const studentIds = useMemo(() => (students.data ?? []).map((s) => s.id), [students.data]);
+}, [students.data, month]);
+
+  const studentIds = useMemo(
+  () => visibleStudents.map((s) => s.id),
+  [visibleStudents]
+);
   const fees = useQuery({
     queryKey: ["fees", "month", month, "class", classId ?? ""],
     queryFn: () => fetchFees({ month, studentIds }),
@@ -63,7 +124,7 @@ function FeesPage() {
   }, [fees.data]);
 
   const totals = useMemo(() => {
-    const list = students.data ?? [];
+    const list = visibleStudents;
     let collected = 0;
     let pending = 0;
     list.forEach((s) => {
@@ -253,21 +314,25 @@ async function createPaymentLink(
       </div>
 
       <Card className="divide-y divide-border/60 overflow-hidden">
-        {(students.data ?? []).length === 0 && (
+        {visibleStudents.length === 0 && (
           <EmptyState
             icon={Users}
             title="No students yet"
             description="Add students to this class to track their fees."
           />
         )}
-        {(students.data ?? []).map((s) => {
+       {visibleStudents.map((s) => {
           const f = feeMap.get(s.id);
           const status = f?.status ?? "pending";
           return (
             <div
-              key={s.id}
-              className="flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-accent/30"
-            >
+  key={s.id}
+  className={`flex flex-wrap items-center justify-between gap-3 p-4 transition-colors hover:bg-accent/30 ${
+    studentIdParam === s.id
+      ? "bg-violet-500/10 ring-1 ring-violet-500/40"
+      : ""
+  }`}
+>
               <div className="min-w-0">
                 <div className="truncate font-medium">{s.student_name}</div>
                 <div className="text-xs text-muted-foreground">
@@ -302,14 +367,11 @@ async function createPaymentLink(
       variant="outline"
       size="sm"
       disabled={paymentLoading === s.id}
-      onClick={() =>
-        createPaymentLink(
-          s.id,
-          Number(s.monthly_fee),
-          f?.id
-        )
-      }
-      className="gap-1.5"
+      onClick={() => {
+  toast.info(
+    "Online payments will be available in the next version of this App."
+  );
+}}
     >
       <CreditCard className="h-4 w-4" />
 
