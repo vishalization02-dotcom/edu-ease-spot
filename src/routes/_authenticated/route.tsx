@@ -132,6 +132,15 @@ const pendingNotificationCount =
 
     return !fee || fee.status !== "paid";
   }).length;
+  const incompleteProfileCount =
+  (notificationStudents.data ?? []).filter(
+    (student) =>
+      !student.parent_phone ||
+      !String(student.parent_phone).trim()
+  ).length;
+
+const totalNotificationCount =
+  pendingNotificationCount + incompleteProfileCount;
   useEffect(() => {
     async function loadProfile() {
       const {
@@ -192,11 +201,11 @@ const pendingNotificationCount =
 >
   <Bell className="h-5 w-5 transition-transform duration-300 group-hover:scale-110" />
 
-  {pendingNotificationCount > 0 && (
+  {totalNotificationCount > 0 && (
     <span className="absolute -right-1 -top-1 flex h-5 min-w-5 items-center justify-center rounded-full border-2 border-background bg-red-500 px-1 text-[10px] font-bold text-white shadow-[0_0_12px_rgba(239,68,68,0.5)]">
-      {pendingNotificationCount > 99
-        ? "99+"
-        : pendingNotificationCount}
+      {totalNotificationCount > 99
+  ? "99+"
+  : totalNotificationCount}
     </span>
   )}
 </button>

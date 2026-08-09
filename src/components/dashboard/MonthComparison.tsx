@@ -39,17 +39,25 @@ async function fetchRange() {
   const prev = monthBounds(-1);
   const cur = monthBounds(0);
 
-  const [feesRes, attRes, studRes] = await Promise.all([
-    supabase
-      .from("fees")
-      .select("amount,status,payment_date")
-      .eq("status", "paid")
-      .gte("payment_date", prev.start)
-      .lte("payment_date", cur.end),
-    supabase.from("attendance").select("date,status").gte("date", prev.start).lte("date", cur.end),
-    supabase.from("students").select("created_at").gte("created_at", prev.start),
-  ]);
+ const [feesRes, attRes, studRes] = await Promise.all([
+  supabase
+    .from("fees")
+    .select("amount,status,payment_date,month")
+    .eq("status", "paid")
+    .gte("payment_date", prev.start)
+    .lte("payment_date", cur.end),
 
+  supabase
+    .from("attendance")
+    .select("date,status")
+    .gte("date", prev.start)
+    .lte("date", cur.end),
+
+  supabase
+    .from("students")
+    .select("created_at")
+    .gte("created_at", prev.start),
+]);
   return {
     fees: feesRes.data ?? [],
     attendance: attRes.data ?? [],
@@ -81,29 +89,44 @@ export function MonthComparison() {
       previous: 0,
     }));
 
-    if (metric === "revenue") {
-      fees.forEach((f: any) => {
-        if (!f.payment_date) return;
-        const { day } = pick(f.payment_date);
-        if (inMonth(f.payment_date, cur)) bucket[day - 1].current += Number(f.amount || 0);
-        else if (inMonth(f.payment_date, prev)) bucket[day - 1].previous += Number(f.amount || 0);
-      });
-    } else if (metric === "attendance") {
-      attendance.forEach((a: any) => {
-        if (a.status !== "present") return;
-        const { day } = pick(a.date);
-        if (inMonth(a.date, cur)) bucket[day - 1].current += 1;
-        else if (inMonth(a.date, prev)) bucket[day - 1].previous += 1;
-      });
-    } else {
-      students.forEach((s: any) => {
-        const dateStr = String(s.created_at).slice(0, 10);
-        const { day } = pick(dateStr);
-        if (inMonth(dateStr, cur)) bucket[day - 1].current += 1;
-        else if (inMonth(dateStr, prev)) bucket[day - 1].previous += 1;
-      });
-    }
+   if (metric === "revenue") {
+  fees.forEach((f: any) => {
+    if (!f.month) return;
+    if (!f.payment_date) return;
 
+    const feeMonth = String(f.month).slice(0, 7);
+    const paymentDay = new Date(f.payment_date).getDate();
+
+    if (feeMonth === cur.start.slice(0, 7)) {
+      bucket[paymentDay - 1].current += Number(f.amount || 0);
+    } else if (feeMonth === prev.start.slice(0, 7)) {
+      bucket[paymentDay - 1].previous += Number(f.amount || 0);
+    }
+  });
+} else if (metric === "attendance") {
+  attendance.forEach((a: any) => {
+    if (a.status !== "present") return;
+
+    const { day } = pick(a.date);
+
+    if (inMonth(a.date, cur)) {
+      bucket[day - 1].current += 1;
+    } else if (inMonth(a.date, prev)) {
+      bucket[day - 1].previous += 1;
+    }
+  });
+} else {
+  students.forEach((s: any) => {
+    const dateStr = String(s.created_at).slice(0, 10);
+    const { day } = pick(dateStr);
+
+    if (inMonth(dateStr, cur)) {
+      bucket[day - 1].current += 1;
+    } else if (inMonth(dateStr, prev)) {
+      bucket[day - 1].previous += 1;
+    }
+  });
+}
     // cumulative for smoother comparison
     let c = 0;
     let p = 0;

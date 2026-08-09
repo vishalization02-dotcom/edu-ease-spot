@@ -243,6 +243,7 @@ function ClassDashboardPage() {
             <TableHeader>
               <TableRow>
                 <TableHead>Student</TableHead>
+                <TableHead>Parent Phone</TableHead>
                 <TableHead>Course</TableHead>
                 <TableHead className="text-right">Monthly Fee</TableHead>
                 <TableHead>Attendance (90d)</TableHead>
@@ -263,18 +264,37 @@ function ClassDashboardPage() {
                 return (
                   <TableRow key={s.id}>
                     <TableCell>
-                      <Link
-                        to="/students/$id"
-                        params={{ id: s.id }}
-                        className="font-medium hover:text-primary"
-                      >
-                        {s.student_name}
-                      </Link>
-                      {s.parent_name && (
-                        <div className="text-xs text-muted-foreground">Parent: {s.parent_name}</div>
-                      )}
-                    </TableCell>
-                    <TableCell>{s.course}</TableCell>
+  <Link
+    to="/students/$id"
+    params={{ id: s.id }}
+    className="font-medium hover:text-primary"
+  >
+    {s.student_name}
+  </Link>
+
+  {s.parent_name && (
+    <div className="text-xs text-muted-foreground">
+      Parent: {s.parent_name}
+    </div>
+  )}
+</TableCell>
+
+<TableCell>
+  {s.parent_phone ? (
+    <a
+      href={`tel:${s.parent_phone}`}
+      className="text-sm text-primary hover:underline"
+    >
+      {s.parent_phone}
+    </a>
+  ) : (
+    <span className="text-xs text-muted-foreground">
+      Not provided
+    </span>
+  )}
+</TableCell>
+
+<TableCell>{s.course}</TableCell>
                     <TableCell className="text-right">
                       ₹{Number(s.monthly_fee).toLocaleString()}
                     </TableCell>

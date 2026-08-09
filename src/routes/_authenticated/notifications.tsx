@@ -1,4 +1,8 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  Link,
+  useNavigate,
+} from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   ArrowLeft,
@@ -6,13 +10,10 @@ import {
   AlertTriangle,
   CheckCircle2,
 } from "lucide-react";
-
+import { UserRoundX } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import {
-  fetchFees,
-  fetchStudents,
-} from "@/lib/classledger-data";
+import {fetchFees,fetchStudents,} from "@/lib/classledger-data";
 
 export const Route = createFileRoute("/_authenticated/notifications")({
   component: NotificationsPage,
@@ -96,6 +97,11 @@ function NotificationsPage() {
 
     return joiningDate >= start && joiningDate < end;
   }
+);
+const incompleteStudents = (students.data ?? []).filter(
+  (student) =>
+    !student.parent_phone ||
+    !String(student.parent_phone).trim()
 );
 
   const studentIds = previousMonthStudents.map(
@@ -239,8 +245,50 @@ function NotificationsPage() {
         </Card>
       )}
 
+{!isLoading && incompleteStudents.length > 0 && (
+  <Card className="overflow-hidden border-border/60 transition-all duration-200 hover:border-violet-500/30 hover:shadow-[0_0_20px_rgba(139,92,246,0.08)]">
+    <div className="flex items-start gap-4 p-5">
+      <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-amber-500/10">
+        <UserRoundX className="h-5 w-5 text-amber-400" />
+      </div>
+
+      <div className="min-w-0 flex-1">
+        <div className="flex flex-wrap items-center justify-between gap-2">
+          <h3 className="font-semibold">
+            Complete Student Profile
+          </h3>
+
+          <span className="text-xs text-muted-foreground">
+            {incompleteStudents.length} missing
+          </span>
+        </div>
+
+        <p className="mt-1 text-sm text-muted-foreground">
+          {incompleteStudents.length}{" "}
+          {incompleteStudents.length === 1
+            ? "student is"
+            : "students are"}{" "}
+          missing a parent phone number.
+        </p>
+
+        <Link to="/students">
+          <Button
+            size="sm"
+            variant="outline"
+            className="mt-4"
+          >
+            Complete Profiles
+          </Button>
+        </Link>
+      </div>
+    </div>
+  </Card>
+)}
+
       {/* All Caught Up */}
-      {!isLoading && !hasPendingFees && (
+      {!isLoading &&
+  !hasPendingFees &&
+  incompleteStudents.length === 0 && (
         <Card className="border-border/60">
           <div className="flex items-start gap-4 p-5">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-emerald-500/10">
