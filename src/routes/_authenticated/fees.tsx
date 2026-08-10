@@ -3,8 +3,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
 import { toast } from "sonner";
-import { Wallet, Users, CreditCard } from "lucide-react";
-
+import { Wallet, Users, CreditCard, ArrowLeft } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -261,6 +260,16 @@ async function createPaymentLink(
 }
   return (
     <div className="space-y-5 max-w-5xl mx-auto animate-fade-in">
+      <Button
+  asChild
+  variant="ghost"
+  className="gap-2 px-2 text-muted-foreground hover:text-foreground"
+>
+  <Link to="/dashboard">
+    <ArrowLeft className="h-4 w-4" />
+    Back to Dashboard
+  </Link>
+</Button>
       <PageHeader icon={Wallet} title="Fees" description="Track monthly fee collection.">
         <div className="space-y-1.5">
           <Label className="text-xs text-muted-foreground">Class</Label>

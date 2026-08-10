@@ -3,7 +3,14 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Check, X, Save, CalendarCheck, Users } from "lucide-react";
 import { toast } from "sonner";
-
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  BookOpen,
+  ArrowRight,
+  ArrowLeft,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -88,6 +95,16 @@ function AttendancePage() {
 
   return (
     <div className="space-y-5 max-w-4xl mx-auto animate-fade-in">
+      <Button
+  asChild
+  variant="ghost"
+  className="gap-2 px-2 text-muted-foreground hover:text-foreground"
+>
+  <Link to="/dashboard">
+    <ArrowLeft className="h-4 w-4" />
+    Back to Dashboard
+  </Link>
+</Button>
       <PageHeader
         icon={CalendarCheck}
         title="Attendance"

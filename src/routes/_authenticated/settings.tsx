@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useState } from "react";
 import { toast } from "sonner";
@@ -36,6 +36,7 @@ import {
   ThermometerSnowflakeIcon,
   LockKeyholeOpenIcon,
   LockIcon,
+  ArrowLeft,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -194,6 +195,16 @@ function SettingsPage() {
 
   return (
     <div className="space-y-8 max-w-4xl mx-auto animate-fade-in">
+      <Button
+  asChild
+  variant="ghost"
+  className="gap-2 px-2 text-muted-foreground hover:text-foreground"
+>
+  <Link to="/dashboard">
+    <ArrowLeft className="h-4 w-4" />
+    Back to Dashboard
+  </Link>
+</Button>
       <PageHeader icon={SettingsIcon} title="Settings" description="Manage your teacher profile." />
       {selected === "home" && (
         <div className="space-y-8">

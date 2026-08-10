@@ -1,7 +1,14 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
-import { Plus, Search, Pencil, Trash2, Users, BookOpen } from "lucide-react";
+import {
+  Users,
+  Pencil,
+  Trash2,
+  Plus,
+  ArrowLeft,
+  Search,
+} from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
@@ -176,6 +183,16 @@ useEffect(() => {
 
   return (
     <div className="space-y-5 max-w-6xl mx-auto animate-fade-in">
+      <Button
+  asChild
+  variant="ghost"
+  className="gap-2 px-2 text-muted-foreground hover:text-foreground"
+>
+  <Link to="/dashboard">
+    <ArrowLeft className="h-4 w-4" />
+    Back to Dashboard
+  </Link>
+</Button>
       <PageHeader icon={Users} title="Students" description="Add, edit, and search your learners.">
         <ClassSelector
           classes={classes.data ?? []}

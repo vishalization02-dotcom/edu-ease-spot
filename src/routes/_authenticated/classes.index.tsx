@@ -1,9 +1,14 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useState } from "react";
-import { Plus, Pencil, Trash2, BookOpen, ArrowRight } from "lucide-react";
-import { toast } from "sonner";
-
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  BookOpen,
+  ArrowRight,
+  ArrowLeft,
+} from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
@@ -57,8 +62,19 @@ function ClassesPage() {
 
   return (
     <div className="space-y-5 max-w-5xl mx-auto animate-fade-in">
+<Button
+  asChild
+  variant="ghost"
+  className="gap-2 px-2 text-muted-foreground hover:text-foreground"
+>
+  <Link to="/dashboard">
+    <ArrowLeft className="h-4 w-4" />
+    Back to Dashboard
+  </Link>
+</Button>
+
       <PageHeader
-        icon={BookOpen}
+        icon={BookOpen} 
         title="Classes"
         description="Group students into classes or batches."
       >
