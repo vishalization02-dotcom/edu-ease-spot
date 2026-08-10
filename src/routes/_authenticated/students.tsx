@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useEffect, useMemo, useState } from "react";
 import { Plus, Search, Pencil, Trash2, Users, BookOpen } from "lucide-react";
@@ -60,18 +60,32 @@ import { PageHeader } from "@/components/page-header";
 import { EmptyState } from "@/components/empty-state";
 
 export const Route = createFileRoute("/_authenticated/students")({
-  validateSearch: (search: Record<string, unknown>): { classId?: string } =>
-    typeof search.classId === "string" ? { classId: search.classId } : {},
+  validateSearch: (
+    search: Record<string, unknown>,
+  ): { classId?: string; studentId?: string } => ({
+    ...(typeof search.classId === "string"
+      ? { classId: search.classId }
+      : {}),
+    ...(typeof search.studentId === "string"
+      ? { studentId: search.studentId }
+      : {}),
+  }),
   component: StudentsPage,
 });
 
 function StudentsPage() {
+  const navigate = useNavigate();
   const qc = useQueryClient();
   const [q, setQ] = useState("");
-  const [open, setOpen] = useState(false);
-  const [editing, setEditing] = useState<Student | null>(null);
-  const { classId: classIdParam } = Route.useSearch();
-  const [classId, setClassId] = useState<string | undefined>(classIdParam);
+const [open, setOpen] = useState(false);
+const [editing, setEditing] = useState<Student | null>(null);
+
+const {
+  classId: classIdParam,
+  studentId: studentIdParam,
+} = Route.useSearch();
+
+const [classId, setClassId] = useState<string | undefined>(classIdParam);
 
   const classes = useQuery({ queryKey: ["classes"], queryFn: fetchClasses });
   useEffect(() => {
@@ -83,7 +97,28 @@ function StudentsPage() {
     queryFn: () => fetchStudents(classId),
     enabled: !!classId,
   });
+useEffect(() => {
+  if (!studentIdParam || !students.data) return;
 
+  const student = students.data.find(
+    (s) => s.id === studentIdParam
+  );
+
+  if (!student) return;
+
+  setEditing(student);
+  setOpen(true);
+
+  // Remove studentId from the URL so the form
+  // does not reopen after saving.
+  navigate({
+    to: "/students",
+    search: {
+      ...(classIdParam ? { classId: classIdParam } : {}),
+    },
+    replace: true,
+  });
+}, [studentIdParam, students.data, navigate, classIdParam]);
   const studentIds = useMemo(() => (students.data ?? []).map((s) => s.id), [students.data]);
   // Last 90 days attendance only, scoped to this class's students
   const attFrom = useMemo(() => {

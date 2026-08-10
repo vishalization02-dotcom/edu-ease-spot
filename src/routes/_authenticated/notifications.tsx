@@ -271,15 +271,15 @@ const incompleteStudents = (students.data ?? []).filter(
           missing a parent phone number.
         </p>
 
-        <Link to="/students">
-          <Button
-            size="sm"
-            variant="outline"
-            className="mt-4"
-          >
-            Complete Profiles
-          </Button>
-        </Link>
+     <Link to="/incomplete-profiles">
+  <Button
+    size="sm"
+    variant="outline"
+    className="mt-4"
+  >
+    Complete Profiles
+  </Button>
+</Link>
       </div>
     </div>
   </Card>
