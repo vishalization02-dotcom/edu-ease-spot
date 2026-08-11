@@ -124,7 +124,9 @@ function RegisterForm({ onDone }: { onDone: () => void }) {
     e.preventDefault();
     if (fullName.trim().length < 2) return toast.error("Enter your full name");
     const m = normalizeMobile(mobile);
-    if (m.length < 6) return toast.error("Enter a valid mobile number");
+if (!/^[6-9]\d{9}$/.test(m)) {
+  return toast.error("Enter a valid 10-digit mobile number");
+}
     if (password.length < 6) return toast.error("Password must be at least 6 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
     setLoading(true);
