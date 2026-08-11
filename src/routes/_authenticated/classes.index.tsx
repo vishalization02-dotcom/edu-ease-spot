@@ -1,6 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { useState } from "react";
+import { toast } from "sonner";
+import { useState, useRef } from "react";
 import {
   Plus,
   Pencil,
@@ -205,48 +206,124 @@ function ClassesPage() {
   );
 }
 
-function ClassForm({ row, onSaved }: { row: ClassRow | null; onSaved: () => void }) {
+function ClassForm({
+  row,
+  onSaved,
+}: {
+  row: ClassRow | null;
+  onSaved: () => void;
+}) {
   const [name, setName] = useState(row?.name ?? "");
   const [desc, setDesc] = useState(row?.description ?? "");
   const [saving, setSaving] = useState(false);
 
+  // Prevent multiple submissions even if the button is clicked rapidly
+  const submittingRef = useRef(false);
+
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!name.trim()) return toast.error("Class name is required");
-    setSaving(true);
-    const { data: userData } = await supabase.auth.getUser();
-    const teacherId = userData.user?.id;
-    if (!teacherId) {
-      setSaving(false);
-      return toast.error("Not signed in");
+
+    // HARD LOCK — only one request can run at a time
+    if (submittingRef.current) return;
+
+    const className = name.trim();
+
+    if (!className) {
+      toast.error("Class name is required");
+      return;
     }
-    const payload = { name: name.trim(), description: desc.trim() || null };
-    const res = row
-      ? await supabase.from("classes").update(payload).eq("id", row.id)
-      : await supabase.from("classes").insert({ ...payload, teacher_id: teacherId });
-    setSaving(false);
-    if (res.error) return toast.error(res.error.message);
-    toast.success(row ? "Class updated" : "Class created");
-    onSaved();
+
+    submittingRef.current = true;
+    setSaving(true);
+
+    try {
+      const { data: userData, error: userError } =
+        await supabase.auth.getUser();
+
+      if (userError) {
+        toast.error(userError.message);
+        return;
+      }
+
+      const teacherId = userData.user?.id;
+
+      if (!teacherId) {
+        toast.error("Not signed in");
+        return;
+      }
+
+      const payload = {
+        name: className,
+        description: desc.trim() || null,
+      };
+
+      const res = row
+        ? await supabase
+            .from("classes")
+            .update(payload)
+            .eq("id", row.id)
+        : await supabase
+            .from("classes")
+            .insert({
+              ...payload,
+              teacher_id: teacherId,
+            });
+
+      if (res.error) {
+        toast.error(res.error.message);
+        return;
+      }
+
+      toast.success(row ? "Class updated" : "Class created");
+
+      onSaved();
+    } catch (error) {
+      console.error("Class save error:", error);
+      toast.error("Something went wrong. Please try again.");
+    } finally {
+      submittingRef.current = false;
+      setSaving(false);
+    }
   }
 
   return (
     <form onSubmit={onSubmit} className="space-y-3">
       <div className="space-y-1.5">
         <Label>Name</Label>
+
         <Input
           value={name}
           onChange={(e) => setName(e.target.value)}
           placeholder="e.g. Class 10 Science"
+          disabled={saving}
         />
       </div>
+
       <div className="space-y-1.5">
         <Label>Description (optional)</Label>
-        <Textarea rows={2} value={desc} onChange={(e) => setDesc(e.target.value)} />
+
+        <Textarea
+          rows={2}
+          value={desc}
+          onChange={(e) => setDesc(e.target.value)}
+          disabled={saving}
+        />
       </div>
+
       <DialogFooter>
-        <Button type="submit" size="lg" disabled={saving} className="w-full">
-          {saving ? "Saving…" : row ? "Save changes" : "Create class"}
+        <Button
+          type="submit"
+          size="lg"
+          disabled={saving}
+          className="w-full"
+        >
+          {saving
+            ? row
+              ? "Saving changes…"
+              : "Creating class…"
+            : row
+              ? "Save changes"
+              : "Create class"}
         </Button>
       </DialogFooter>
     </form>

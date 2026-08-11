@@ -8,6 +8,7 @@ import {
   Plus,
   ArrowLeft,
   Search,
+  BookOpen,
 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -104,6 +105,7 @@ const [classId, setClassId] = useState<string | undefined>(classIdParam);
     queryFn: () => fetchStudents(classId),
     enabled: !!classId,
   });
+  
 useEffect(() => {
   if (!studentIdParam || !students.data) return;
 
