@@ -11,16 +11,19 @@ import {
   Menu,
   MessageCircle,
   Monitor,
+  Moon,
   Music2,
   Palette,
   Receipt,
   ShieldCheck,
   Sparkles,
+  Sun,
   Users,
   X,
   Zap,
 } from "lucide-react";
 import { useState } from "react";
+import { useTheme } from "next-themes";
 
 const features = [
   {
@@ -91,6 +94,14 @@ const testimonials = [
 export default function LandingPage() {
   const [mobileMenu, setMobileMenu] = useState(false);
 
+  const { theme, setTheme } = useTheme();
+
+  const isDark = theme === "dark";
+
+  const toggleTheme = () => {
+    setTheme(isDark ? "light" : "dark");
+  };
+
   const goToAuth = () => {
     window.location.href = "/auth";
   };
@@ -100,9 +111,9 @@ export default function LandingPage() {
       {/* =========================================================
           NAVBAR
       ========================================================= */}
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
-          {/* Temporary text logo */}
+          {/* Logo */}
           <button
             onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             className="flex items-center gap-2"
@@ -112,8 +123,7 @@ export default function LandingPage() {
             </div>
 
             <span className="text-lg font-bold tracking-tight">
-              <span className="text-foreground">Your</span>
-              <span className="text-primary">Class</span>
+              Your<span className="text-primary">Class</span>
             </span>
           </button>
 
@@ -148,8 +158,26 @@ export default function LandingPage() {
             </a>
           </nav>
 
-          {/* Desktop actions */}
-          <div className="hidden items-center gap-3 md:flex">
+          {/* =====================================================
+              DESKTOP ACTIONS
+          ===================================================== */}
+          <div className="hidden items-center gap-2 md:flex">
+            {/* Desktop theme */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={
+                isDark ? "Switch to light mode" : "Switch to dark mode"
+              }
+              className="flex h-10 w-10 items-center justify-center rounded-xl border border-border bg-card text-muted-foreground transition-all hover:bg-accent hover:text-foreground"
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </button>
+
             <a
               href="/auth"
               className="px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground"
@@ -158,6 +186,7 @@ export default function LandingPage() {
             </a>
 
             <button
+              type="button"
               onClick={goToAuth}
               className="rounded-xl bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl hover:shadow-primary/25"
             >
@@ -165,21 +194,52 @@ export default function LandingPage() {
             </button>
           </div>
 
-          {/* Mobile menu button */}
-          <button
-            onClick={() => setMobileMenu(!mobileMenu)}
-            className="rounded-lg p-2 md:hidden"
-            aria-label="Toggle menu"
-          >
-            {mobileMenu ? (
-              <X className="h-5 w-5" />
-            ) : (
-              <Menu className="h-5 w-5" />
-            )}
-          </button>
+          {/* =====================================================
+              MOBILE ACTIONS
+              
+              IMPORTANT:
+              THEME BUTTON IS HERE.
+              IT IS OUTSIDE THE MOBILE MENU.
+          ===================================================== */}
+          <div className="flex items-center gap-1 md:hidden">
+            {/* MOBILE THEME BUTTON */}
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={
+                isDark ? "Switch to light mode" : "Switch to dark mode"
+              }
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+            >
+              {isDark ? (
+                <Sun className="h-4 w-4" />
+              ) : (
+                <Moon className="h-4 w-4" />
+              )}
+            </button>
+
+            {/* MOBILE HAMBURGER */}
+            <button
+              type="button"
+              onClick={() => setMobileMenu((value) => !value)}
+              className="flex h-9 w-9 items-center justify-center rounded-lg text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+              aria-label="Toggle navigation menu"
+            >
+              {mobileMenu ? (
+                <X className="h-5 w-5" />
+              ) : (
+                <Menu className="h-5 w-5" />
+              )}
+            </button>
+          </div>
         </div>
 
-        {/* Mobile navigation */}
+        {/* =========================================================
+            MOBILE MENU
+
+            NOTICE:
+            THERE IS NO THEME BUTTON HERE.
+        ========================================================= */}
         {mobileMenu && (
           <div className="border-t border-border bg-background px-5 py-5 md:hidden">
             <div className="flex flex-col gap-4">
@@ -208,6 +268,14 @@ export default function LandingPage() {
               </a>
 
               <a
+                href="#who-its-for"
+                onClick={() => setMobileMenu(false)}
+                className="text-sm font-medium"
+              >
+                For Teachers
+              </a>
+
+              <a
                 href="/auth"
                 className="text-sm font-medium text-muted-foreground"
               >
@@ -215,7 +283,11 @@ export default function LandingPage() {
               </a>
 
               <button
-                onClick={goToAuth}
+                type="button"
+                onClick={() => {
+                  setMobileMenu(false);
+                  goToAuth();
+                }}
                 className="rounded-xl bg-primary px-5 py-3 text-sm font-semibold text-primary-foreground"
               >
                 Start 7-Day Free Trial
@@ -226,16 +298,19 @@ export default function LandingPage() {
       </header>
 
       {/* =========================================================
-          HERO
+          MAIN
       ========================================================= */}
       <main>
+        {/* =======================================================
+            HERO
+        ======================================================= */}
         <section className="relative overflow-hidden">
-          {/* Soft background glow */}
           <div className="pointer-events-none absolute -left-40 top-10 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+
           <div className="pointer-events-none absolute right-0 top-20 h-96 w-96 rounded-full bg-info/10 blur-3xl" />
 
           <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:pb-28 lg:pt-24">
-            {/* Hero copy */}
+            {/* Hero text */}
             <div className="relative z-10">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
                 <Sparkles className="h-4 w-4" />
@@ -244,7 +319,9 @@ export default function LandingPage() {
 
               <h1 className="max-w-2xl text-5xl font-black leading-[1.03] tracking-[-0.04em] sm:text-6xl lg:text-[4.25rem]">
                 Run your classes.
-                <span className="block text-primary">Not your paperwork.</span>
+                <span className="block text-primary">
+                  Not your paperwork.
+                </span>
               </h1>
 
               <p className="mt-7 max-w-xl text-lg leading-8 text-muted-foreground sm:text-xl">
@@ -253,7 +330,6 @@ export default function LandingPage() {
                 coaching classes.
               </p>
 
-              {/* Mini benefits */}
               <div className="mt-8 grid max-w-xl grid-cols-1 gap-3 sm:grid-cols-3">
                 {[
                   {
@@ -279,19 +355,21 @@ export default function LandingPage() {
                       <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
                         <Icon className="h-4 w-4" />
                       </div>
+
                       {item.text}
                     </div>
                   );
                 })}
               </div>
 
-              {/* CTA */}
               <div className="mt-9 flex flex-col gap-3 sm:flex-row">
                 <button
+                  type="button"
                   onClick={goToAuth}
                   className="group inline-flex items-center justify-center gap-2 rounded-xl bg-primary px-7 py-4 font-semibold text-primary-foreground shadow-xl shadow-primary/20 transition-all hover:-translate-y-1 hover:shadow-2xl hover:shadow-primary/25"
                 >
                   Start 7-Day Free Trial
+
                   <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
                 </button>
 
@@ -309,12 +387,14 @@ export default function LandingPage() {
               </p>
             </div>
 
-            {/* Dashboard visual */}
-            <div className="relative">
+            {/* =====================================================
+                DASHBOARD PREVIEW
+            ===================================================== */}
+            <div className="relative min-w-0">
               <div className="absolute -inset-8 rounded-[3rem] bg-primary/10 blur-3xl" />
 
               <div className="relative overflow-hidden rounded-3xl border border-border/80 bg-card shadow-2xl shadow-primary/10">
-                {/* Fake browser bar */}
+                {/* Browser top */}
                 <div className="flex items-center justify-between border-b border-border bg-muted/30 px-5 py-3">
                   <div className="flex gap-1.5">
                     <div className="h-2.5 w-2.5 rounded-full bg-destructive/60" />
@@ -329,7 +409,10 @@ export default function LandingPage() {
                   <div className="w-8" />
                 </div>
 
-                {/* Fake dashboard */}
+                {/* IMPORTANT:
+                    Mobile = one column
+                    Desktop = sidebar + content
+                */}
                 <div className="grid min-h-[410px] grid-cols-1 bg-muted/10 sm:grid-cols-[150px_1fr]">
                   {/* Sidebar */}
                   <div className="hidden border-r border-border bg-card p-4 sm:block">
@@ -337,7 +420,10 @@ export default function LandingPage() {
                       <div className="flex h-7 w-7 items-center justify-center rounded-lg bg-primary text-primary-foreground">
                         <Sparkles className="h-3.5 w-3.5" />
                       </div>
-                      <span className="text-xs font-bold">YourClass</span>
+
+                      <span className="text-xs font-bold">
+                        YourClass
+                      </span>
                     </div>
 
                     <div className="space-y-1">
@@ -362,25 +448,26 @@ export default function LandingPage() {
                     </div>
                   </div>
 
-                  {/* Dashboard content */}
+                  {/* Dashboard */}
                   <div className="min-w-0 p-4 sm:p-6">
-                    <div className="mb-5 flex items-center justify-between">
-                      <div>
+                    <div className="mb-5 flex items-center justify-between gap-3">
+                      <div className="min-w-0">
                         <p className="text-[9px] text-muted-foreground">
                           Dashboard
                         </p>
+
                         <h3 className="mt-1 text-sm font-bold sm:text-lg">
                           Welcome back, Teacher 👋
                         </h3>
                       </div>
 
-                      <div className="rounded-lg border border-border px-2 py-1 text-[8px] text-muted-foreground">
+                      <div className="shrink-0 rounded-lg border border-border px-2 py-1 text-[8px] text-muted-foreground">
                         This Month
                       </div>
                     </div>
 
-                    {/* Stat cards */}
-                   <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+                    {/* Stats */}
+                    <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
                       {[
                         {
                           label: "Total Students",
@@ -412,7 +499,7 @@ export default function LandingPage() {
                         return (
                           <div
                             key={stat.label}
-                            className="rounded-xl border border-border bg-card p-3 shadow-sm"
+                            className="min-w-0 rounded-xl border border-border bg-card p-3 shadow-sm"
                           >
                             <div
                               className={`mb-2 flex h-7 w-7 items-center justify-center rounded-lg ${stat.style}`}
@@ -420,11 +507,11 @@ export default function LandingPage() {
                               <Icon className="h-3.5 w-3.5" />
                             </div>
 
-                            <p className="text-[8px] text-muted-foreground">
+                            <p className="truncate text-[8px] text-muted-foreground">
                               {stat.label}
                             </p>
 
-                            <p className="mt-1 text-xs font-bold sm:text-sm">
+                            <p className="mt-1 truncate text-xs font-bold sm:text-sm">
                               {stat.value}
                             </p>
                           </div>
@@ -432,20 +519,22 @@ export default function LandingPage() {
                       })}
                     </div>
 
-                    {/* Lower dashboard */}
-                   <div className="mt-4 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
-                      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                    {/* Lower cards */}
+                    <div className="mt-4 grid gap-3 sm:grid-cols-[1.2fr_0.8fr]">
+                      {/* Chart */}
+                      <div className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-sm">
                         <div className="flex items-center justify-between">
                           <div>
                             <p className="text-xs font-semibold">
                               Attendance Overview
                             </p>
+
                             <p className="text-[8px] text-muted-foreground">
                               This week
                             </p>
                           </div>
 
-                          <BarChart3 className="h-4 w-4 text-primary" />
+                          <BarChart3 className="h-4 w-4 shrink-0 text-primary" />
                         </div>
 
                         <div className="relative mt-5 h-28">
@@ -455,7 +544,7 @@ export default function LandingPage() {
 
                           <svg
                             viewBox="0 0 500 120"
-                            className="absolute inset-0 h-full w-full overflow-visible"
+                            className="absolute inset-0 h-full w-full"
                           >
                             <path
                               d="M0 85 C55 70 65 90 110 65 S180 78 225 48 S290 58 335 35 S410 55 500 18"
@@ -473,7 +562,8 @@ export default function LandingPage() {
                         </div>
                       </div>
 
-                      <div className="rounded-xl border border-border bg-card p-4 shadow-sm">
+                      {/* Fees */}
+                      <div className="min-w-0 rounded-xl border border-border bg-card p-4 shadow-sm">
                         <p className="text-xs font-semibold">
                           Recent Fee Collection
                         </p>
@@ -487,22 +577,22 @@ export default function LandingPage() {
                           ].map(([name, amount]) => (
                             <div
                               key={name}
-                              className="flex items-center justify-between"
+                              className="flex items-center justify-between gap-2"
                             >
-                              <div className="flex items-center gap-2">
-                                <div className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/10 text-[7px] font-bold text-primary">
+                              <div className="flex min-w-0 items-center gap-2">
+                                <div className="flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[7px] font-bold text-primary">
                                   {name
                                     .split(" ")
                                     .map((n) => n[0])
                                     .join("")}
                                 </div>
 
-                                <span className="text-[8px] font-medium">
+                                <span className="truncate text-[8px] font-medium">
                                   {name}
                                 </span>
                               </div>
 
-                              <span className="text-[8px] font-semibold text-success">
+                              <span className="shrink-0 text-[8px] font-semibold text-success">
                                 {amount}
                               </span>
                             </div>
@@ -525,7 +615,10 @@ export default function LandingPage() {
                     <p className="text-[10px] font-semibold">
                       Fees collected
                     </p>
-                    <p className="text-sm font-bold">₹42,800</p>
+
+                    <p className="text-sm font-bold">
+                      ₹42,800
+                    </p>
                   </div>
                 </div>
               </div>
@@ -533,9 +626,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* =========================================================
+        {/* =======================================================
             TRUST STRIP
-        ========================================================= */}
+        ======================================================= */}
         <section className="border-y border-border/60 bg-muted/20">
           <div className="mx-auto flex max-w-5xl flex-col items-center justify-center gap-4 px-5 py-5 text-center sm:flex-row">
             <div className="flex items-center gap-2 text-sm font-medium">
@@ -559,13 +652,16 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* =========================================================
+        {/* =======================================================
             PROBLEM / SOLUTION
-        ========================================================= */}
-        <section id="how-it-works" className="px-5 py-20 sm:px-8 lg:py-28">
+        ======================================================= */}
+        <section
+          id="how-it-works"
+          className="px-5 py-20 sm:px-8 lg:py-28"
+        >
           <div className="mx-auto max-w-7xl">
             <div className="grid overflow-hidden rounded-3xl border border-border bg-card shadow-sm lg:grid-cols-2">
-              {/* Problem */}
+              {/* Before */}
               <div className="border-b border-border p-8 sm:p-12 lg:border-b-0 lg:border-r">
                 <span className="text-sm font-bold uppercase tracking-widest text-muted-foreground">
                   Before
@@ -589,13 +685,16 @@ export default function LandingPage() {
                       className="rounded-xl border border-border bg-muted/30 p-4"
                     >
                       <X className="mb-3 h-4 w-4 text-destructive" />
-                      <p className="text-sm font-medium">{item}</p>
+
+                      <p className="text-sm font-medium">
+                        {item}
+                      </p>
                     </div>
                   ))}
                 </div>
               </div>
 
-              {/* Solution */}
+              {/* After */}
               <div className="bg-primary/[0.035] p-8 sm:p-12">
                 <span className="text-sm font-bold uppercase tracking-widest text-primary">
                   After
@@ -622,7 +721,9 @@ export default function LandingPage() {
                         <Check className="h-4 w-4 text-success" />
                       </div>
 
-                      <span className="text-sm font-medium">{item}</span>
+                      <span className="text-sm font-medium">
+                        {item}
+                      </span>
                     </div>
                   ))}
                 </div>
@@ -631,10 +732,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* =========================================================
+        {/* =======================================================
             FEATURES
-        ========================================================= */}
-        <section id="features" className="bg-muted/20 px-5 py-20 sm:px-8 lg:py-28">
+        ======================================================= */}
+        <section
+          id="features"
+          className="bg-muted/20 px-5 py-20 sm:px-8 lg:py-28"
+        >
           <div className="mx-auto max-w-7xl">
             <div className="mx-auto max-w-2xl text-center">
               <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 px-3 py-1.5 text-sm font-semibold text-primary">
@@ -644,7 +748,9 @@ export default function LandingPage() {
 
               <h2 className="mt-5 text-4xl font-bold tracking-tight sm:text-5xl">
                 Everything you need to{" "}
-                <span className="text-primary">run your class</span>
+                <span className="text-primary">
+                  run your class
+                </span>
               </h2>
 
               <p className="mt-5 text-lg leading-8 text-muted-foreground">
@@ -665,7 +771,9 @@ export default function LandingPage() {
                       <Icon className="h-5 w-5" />
                     </div>
 
-                    <h3 className="mt-5 text-lg font-bold">{feature.title}</h3>
+                    <h3 className="mt-5 text-lg font-bold">
+                      {feature.title}
+                    </h3>
 
                     <p className="mt-2 text-sm leading-6 text-muted-foreground">
                       {feature.description}
@@ -682,15 +790,20 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* =========================================================
-            WHO IT'S FOR
-        ========================================================= */}
-        <section id="who-its-for" className="px-5 py-20 sm:px-8 lg:py-28">
+        {/* =======================================================
+            AUDIENCE
+        ======================================================= */}
+        <section
+          id="who-its-for"
+          className="px-5 py-20 sm:px-8 lg:py-28"
+        >
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
               <h2 className="text-4xl font-bold tracking-tight sm:text-5xl">
                 Built for teachers who{" "}
-                <span className="text-primary">run their own classes</span>
+                <span className="text-primary">
+                  run their own classes
+                </span>
               </h2>
 
               <p className="mx-auto mt-5 max-w-2xl text-lg text-muted-foreground">
@@ -722,9 +835,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* =========================================================
+        {/* =======================================================
             PRICING
-        ========================================================= */}
+        ======================================================= */}
         <section
           id="pricing"
           className="relative overflow-hidden bg-primary/[0.045] px-5 py-20 sm:px-8 lg:py-28"
@@ -761,6 +874,7 @@ export default function LandingPage() {
                     <span className="text-5xl font-black tracking-tight">
                       ₹299
                     </span>
+
                     <span className="mb-2 text-sm text-muted-foreground">
                       / month
                     </span>
@@ -776,7 +890,7 @@ export default function LandingPage() {
                 <div className="space-y-4">
                   {[
                     "All core features included",
-                    "Manage your students and batches",
+                    "Manage students and batches",
                     "Attendance tracking",
                     "Fee collection and pending fees",
                     "Reports and data exports",
@@ -797,6 +911,7 @@ export default function LandingPage() {
                 </div>
 
                 <button
+                  type="button"
                   onClick={goToAuth}
                   className="mt-8 flex w-full items-center justify-center gap-2 rounded-xl bg-primary px-6 py-4 font-semibold text-primary-foreground shadow-lg shadow-primary/20 transition-all hover:-translate-y-0.5 hover:shadow-xl"
                 >
@@ -812,9 +927,9 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* =========================================================
+        {/* =======================================================
             TESTIMONIALS
-        ========================================================= */}
+        ======================================================= */}
         <section className="px-5 py-20 sm:px-8 lg:py-28">
           <div className="mx-auto max-w-7xl">
             <div className="text-center">
@@ -855,6 +970,7 @@ export default function LandingPage() {
                       <p className="text-sm font-bold">
                         {testimonial.name}
                       </p>
+
                       <p className="text-xs text-muted-foreground">
                         {testimonial.role}
                       </p>
@@ -866,12 +982,13 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* =========================================================
+        {/* =======================================================
             FINAL CTA
-        ========================================================= */}
+        ======================================================= */}
         <section className="px-5 pb-20 sm:px-8 lg:pb-28">
           <div className="relative mx-auto max-w-7xl overflow-hidden rounded-[2rem] bg-primary px-7 py-14 text-primary-foreground shadow-2xl shadow-primary/20 sm:px-12 lg:px-16 lg:py-16">
             <div className="pointer-events-none absolute -right-20 -top-40 h-96 w-96 rounded-full bg-white/10 blur-3xl" />
+
             <div className="pointer-events-none absolute -bottom-40 -left-20 h-96 w-96 rounded-full bg-black/10 blur-3xl" />
 
             <div className="relative flex flex-col items-start justify-between gap-8 lg:flex-row lg:items-center">
@@ -882,6 +999,7 @@ export default function LandingPage() {
 
                 <h2 className="text-4xl font-black tracking-tight sm:text-5xl">
                   Spend less time managing your class.
+
                   <span className="block text-primary-foreground/70">
                     Spend more time teaching.
                   </span>
@@ -894,10 +1012,12 @@ export default function LandingPage() {
               </div>
 
               <button
+                type="button"
                 onClick={goToAuth}
                 className="group inline-flex shrink-0 items-center gap-3 rounded-xl bg-white px-7 py-4 font-bold text-primary shadow-xl transition-all hover:-translate-y-1 hover:shadow-2xl"
               >
                 Start Free Trial
+
                 <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-1" />
               </button>
             </div>
@@ -1003,7 +1123,9 @@ export default function LandingPage() {
           </div>
 
           <div className="mt-10 flex flex-col gap-3 border-t border-border pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-            <p>© {new Date().getFullYear()} YourClass. All rights reserved.</p>
+            <p>
+              © {new Date().getFullYear()} YourClass. All rights reserved.
+            </p>
 
             <p>Built for teachers.</p>
           </div>
