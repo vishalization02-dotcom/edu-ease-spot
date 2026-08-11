@@ -111,7 +111,7 @@ export default function LandingPage() {
       {/* =========================================================
           NAVBAR
       ========================================================= */}
-      <header className="sticky top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
+     <header className="fixed inset-x-0 top-0 z-50 border-b border-border/60 bg-background/85 backdrop-blur-xl">
         <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-5 sm:px-8">
           {/* Logo */}
           <button
@@ -309,7 +309,7 @@ export default function LandingPage() {
 
           <div className="pointer-events-none absolute right-0 top-20 h-96 w-96 rounded-full bg-info/10 blur-3xl" />
 
-          <div className="mx-auto grid max-w-7xl items-center gap-14 px-5 pb-20 pt-16 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-12 lg:pb-28 lg:pt-24">
+         <div className="mx-auto grid max-w-7xl items-center gap-10 px-5 pb-16 pt-20 sm:px-8 lg:grid-cols-[0.9fr_1.1fr] lg:gap-10 lg:pb-20 lg:pt-25">
             {/* Hero text */}
             <div className="relative z-10">
               <div className="mb-6 inline-flex items-center gap-2 rounded-full border border-primary/15 bg-primary/5 px-4 py-2 text-sm font-medium text-primary">
