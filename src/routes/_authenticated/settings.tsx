@@ -39,7 +39,12 @@ import {
   ArrowLeft,
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
+import {
+  fetchClasses,
+  fetchStudents,
+  type ClassRow,
+  type Student,
+} from "@/lib/classledger-data";
 export const Route = createFileRoute("/_authenticated/settings")({
   component: SettingsPage,
 });
@@ -105,6 +110,21 @@ function SettingsPage() {
   const [exportType, setExportType] = useState("");
 
   const [format, setFormat] = useState("pdf");
+  const [exportScope, setExportScope] = useState<"all" | "class" | "student">("all");
+const [selectedExportClassId, setSelectedExportClassId] = useState("");
+const [selectedExportStudentId, setSelectedExportStudentId] = useState("");
+const exportClasses = useQuery({
+  queryKey: ["export", "classes"],
+  queryFn: fetchClasses,
+});
+
+const exportStudents = useQuery({
+  queryKey: ["export", "students", selectedExportClassId],
+  queryFn: () => fetchStudents(selectedExportClassId),
+  enabled:
+  exportScope === "student" &&
+  !!selectedExportClassId,
+});
   async function changePassword(e: React.FormEvent) {
     e.preventDefault();
     if (newPw.length < 6) return toast.error("Password must be at least 6 characters");
@@ -455,9 +475,12 @@ function SettingsPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setExportType("Students");
-                    setExportDialog(true);
-                  }}
+  setExportType("Students");
+  setExportScope("all");
+  setSelectedExportClassId("");
+  setSelectedExportStudentId("");
+  setExportDialog(true);
+}}
                 >
                   Export
                 </Button>
@@ -472,10 +495,13 @@ function SettingsPage() {
 
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setExportType("Attendance");
-                    setExportDialog(true);
-                  }}
+                 onClick={() => {
+  setExportType("Attendance");
+  setExportScope("all");
+  setSelectedExportClassId("");
+  setSelectedExportStudentId("");
+  setExportDialog(true);
+}}
                 >
                   Export
                 </Button>
@@ -490,10 +516,13 @@ function SettingsPage() {
 
                 <Button
                   variant="outline"
-                  onClick={() => {
-                    setExportType("Fees");
-                    setExportDialog(true);
-                  }}
+                 onClick={() => {
+  setExportType("Fees");
+  setExportScope("all");
+  setSelectedExportClassId("");
+  setSelectedExportStudentId("");
+  setExportDialog(true);
+}}
                 >
                   Export
                 </Button>
@@ -508,9 +537,12 @@ function SettingsPage() {
                 <Button
                   variant="outline"
                   onClick={() => {
-                    setExportType("Reports");
-                    setExportDialog(true);
-                  }}
+  setExportType("Reports");
+  setExportScope("all");
+  setSelectedExportClassId("");
+  setSelectedExportStudentId("");
+  setExportDialog(true);
+}}
                 >
                   Export
                 </Button>
@@ -531,62 +563,177 @@ function SettingsPage() {
           </Card>
         </>
       )}
-      <Dialog open={exportDialog} onOpenChange={setExportDialog}>
-        <DialogContent className="max-w-md">
-          <DialogHeader>
-            <DialogTitle>Export {exportType}</DialogTitle>
-          </DialogHeader>
+     <Dialog
+  open={exportDialog}
+  onOpenChange={(open) => {
+    setExportDialog(open);
 
-          <div className="space-y-6">
-            <div>
-              <p className="mb-3 font-medium">Choose Format</p>
+    if (!open) {
+      setExportScope("all");
+      setSelectedExportClassId("");
+      setSelectedExportStudentId("");
+    }
+  }}
+>
+  <DialogContent className="max-w-md rounded-2xl">
+    <DialogHeader>
+      <DialogTitle>Export {exportType}</DialogTitle>
+    </DialogHeader>
 
-              <RadioGroup value={format} onValueChange={setFormat}>
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="pdf" id="pdf" />
+    <div className="space-y-6">
+      {/* FEES SCOPE */}
+    {/* EXPORT SCOPE */}
+<div>
+  <p className="mb-3 font-medium">Export Scope</p>
 
-                  <Label htmlFor="pdf">PDF</Label>
-                </div>
+  <RadioGroup
+    value={exportScope}
+    onValueChange={(value) => {
+      setExportScope(value as "all" | "class" | "student");
 
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="excel" id="excel" />
+      if (value === "all") {
+        setSelectedExportClassId("");
+        setSelectedExportStudentId("");
+      }
 
-                  <Label htmlFor="excel">Excel</Label>
-                </div>
+      if (value === "class") {
+        setSelectedExportStudentId("");
+      }
+    }}
+    className="space-y-3"
+  >
+    <div className="flex items-center gap-2">
+      <RadioGroupItem value="all" id="scope-all" />
+      <Label htmlFor="scope-all">All classes</Label>
+    </div>
 
-                <div className="flex items-center gap-2">
-                  <RadioGroupItem value="csv" id="csv" />
+    <div className="flex items-center gap-2">
+      <RadioGroupItem value="class" id="scope-class" />
+      <Label htmlFor="scope-class">Specific class</Label>
+    </div>
 
-                  <Label htmlFor="csv">CSV</Label>
-                </div>
-              </RadioGroup>
-            </div>
+    <div className="flex items-center gap-2">
+      <RadioGroupItem value="student" id="scope-student" />
+      <Label htmlFor="scope-student">Specific student</Label>
+    </div>
+  </RadioGroup>
+</div>
 
-            <div>
-              <p className="mb-3 font-medium">Include</p>
+{/* CLASS SELECT */}
+{(exportScope === "class" || exportScope === "student") && (
+  <div className="space-y-2">
+    <Label>Select Class</Label>
 
-              <div className="space-y-3">
-                {exportType &&
-                  exportOptions[exportType as keyof typeof exportOptions]?.fields.map((field) => (
-                    <div key={field} className="flex items-center gap-3">
-                      <Checkbox defaultChecked />
+    <select
+      value={selectedExportClassId}
+      onChange={(e) => {
+        setSelectedExportClassId(e.target.value);
+        setSelectedExportStudentId("");
+      }}
+      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+    >
+      <option value="">Select a class</option>
 
-                      <Label>{field}</Label>
-                    </div>
-                  ))}
+      {(exportClasses.data ?? []).map((cls: ClassRow) => (
+        <option key={cls.id} value={cls.id}>
+          {cls.name}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
+{/* STUDENT SELECT */}
+{exportScope === "student" && selectedExportClassId && (
+  <div className="space-y-2">
+    <Label>Select Student</Label>
+
+    <select
+      value={selectedExportStudentId}
+      onChange={(e) => {
+        setSelectedExportStudentId(e.target.value);
+      }}
+      className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm text-foreground"
+    >
+      <option value="">Select a student</option>
+
+      {(exportStudents.data ?? []).map((student: Student) => (
+        <option key={student.id} value={student.id}>
+          {student.student_name}
+        </option>
+      ))}
+    </select>
+  </div>
+)}
+
+      {/* FIELDS */}
+      <div>
+        <p className="mb-3 font-medium">Include</p>
+
+        <div className="space-y-3">
+          {exportType &&
+            exportOptions[
+              exportType as keyof typeof exportOptions
+            ]?.fields.map((field) => (
+              <div
+                key={field}
+                className="flex items-center gap-3"
+              >
+                <Checkbox defaultChecked />
+                <Label>{field}</Label>
               </div>
-            </div>
-          </div>
+            ))}
+        </div>
+      </div>
+    </div>
 
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setExportDialog(false)}>
-              Cancel
-            </Button>
+    <DialogFooter>
+      <Button
+        variant="outline"
+        onClick={() => setExportDialog(false)}
+      >
+        Cancel
+      </Button>
 
-            <Button>Export</Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <Button
+       onClick={() => {
+  if (
+    exportScope === "class" &&
+    !selectedExportClassId
+  ) {
+    return toast.error("Please select a class");
+  }
+
+  if (
+    exportScope === "student" &&
+    !selectedExportClassId
+  ) {
+    return toast.error("Please select a class");
+  }
+
+  if (
+    exportScope === "student" &&
+    !selectedExportStudentId
+  ) {
+    return toast.error("Please select a student");
+  }
+
+  toast.success("Export settings selected");
+
+  console.log({
+    exportType,
+    exportScope,
+    classId: selectedExportClassId || null,
+    studentId: selectedExportStudentId || null,
+    format,
+  });
+}}
+      >
+        Export
+      </Button>
+    </DialogFooter>
+  </DialogContent>
+</Dialog>
     </div>
   );
 }
