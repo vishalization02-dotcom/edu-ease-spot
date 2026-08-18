@@ -168,21 +168,39 @@ export function SmartInsights() {
 
       {!isLoading && summary && (
         <div className="mt-5 grid grid-cols-3 gap-3 rounded-2xl border border-border/60 bg-card/40 p-4">
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">Students</p>
-            <p className="mt-1 text-lg font-semibold">{summary.totalStudents}</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">Attendance</p>
-            <p className="mt-1 text-lg font-semibold">{summary.todayRate}%</p>
-          </div>
-          <div className="text-center">
-            <p className="text-xs text-muted-foreground">Collected</p>
-            <p className="mt-1 text-lg font-semibold">
-              ₹{Math.round(summary.collected).toLocaleString("en-IN")}
-            </p>
-          </div>
-        </div>
+  {/* Students — YourClass theme color */}
+  <div className="text-center">
+    <p className="text-xs text-muted-foreground">Students</p>
+
+    <p className="mt-1 text-lg font-semibold text-primary">
+      {summary.totalStudents}
+    </p>
+  </div>
+
+  {/* Attendance — Red when 0%, Orange otherwise */}
+  <div className="text-center">
+    <p className="text-xs text-muted-foreground">Attendance</p>
+
+    <p
+      className={`mt-1 text-lg font-semibold ${
+        summary.todayRate === 0
+          ? "text-red-500"
+          : "text-orange-500"
+      }`}
+    >
+      {summary.todayRate}%
+    </p>
+  </div>
+
+  {/* Collected — Green */}
+  <div className="text-center">
+    <p className="text-xs text-muted-foreground">Collected</p>
+
+    <p className="mt-1 text-lg font-semibold text-emerald-500">
+      ₹{Math.round(summary.collected).toLocaleString("en-IN")}
+    </p>
+  </div>
+</div>
       )}
     </Card>
   );
