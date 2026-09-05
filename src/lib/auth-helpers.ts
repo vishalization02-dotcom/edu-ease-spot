@@ -11,11 +11,12 @@ function mobileToEmail(mobile: string) {
 export async function signUpTeacher(params: {
   fullName: string;
   mobile: string;
+  email: string;
   password: string;
   instituteName?: string;
 }) {
   return supabase.auth.signUp({
-    email: mobileToEmail(params.mobile),
+    email: params.email.trim().toLowerCase(),
     password: params.password,
     options: {
       emailRedirectTo: window.location.origin,
@@ -28,9 +29,18 @@ export async function signUpTeacher(params: {
   });
 }
 
-export async function signInTeacher(mobile: string, password: string) {
+export async function signInTeacher(
+  identifier: string,
+  password: string,
+) {
+  const value = identifier.trim();
+
+  const email = value.includes("@")
+    ? value.toLowerCase()
+    : mobileToEmail(value);
+
   return supabase.auth.signInWithPassword({
-    email: mobileToEmail(mobile),
+    email,
     password,
   });
 }

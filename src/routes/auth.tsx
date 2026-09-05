@@ -65,19 +65,26 @@ function AuthPage() {
 }
 
 function LoginForm({ onDone }: { onDone: () => void }) {
-  const [mobile, setMobile] = useState("");
+  const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   async function onSubmit(e: React.FormEvent) {
     e.preventDefault();
-    const m = normalizeMobile(mobile);
-    if (m.length < 6) return toast.error("Enter a valid mobile number");
-    if (password.length < 6) return toast.error("Password must be at least 6 characters");
-    setLoading(true);
-    const { error } = await signInTeacher(m, password);
+const value = identifier.trim();
+
+if (!value) {
+  return toast.error("Enter your email or mobile number");
+}
+
+if (password.length < 6) {
+  return toast.error("Password must be at least 6 characters");
+}
+
+setLoading(true);
+const { error } = await signInTeacher(value, password);
     setLoading(false);
-    if (error) return toast.error(error.message || "Invalid mobile or password");
+    if (error) return toast.error(error.message || "Invalid email/mobile or password")
     toast.success("Welcome back!");
     onDone();
   }
@@ -85,15 +92,15 @@ function LoginForm({ onDone }: { onDone: () => void }) {
   return (
     <form onSubmit={onSubmit} className="space-y-4">
       <div className="space-y-1.5">
-        <Label htmlFor="l-mobile">Mobile number</Label>
+        <Label htmlFor="l-identifier">Email or mobile number</Label>
         <Input
-          id="l-mobile"
-          inputMode="tel"
-          autoComplete="tel"
-          value={mobile}
-          onChange={(e) => setMobile(e.target.value)}
-          placeholder="9876543210"
-        />
+  id="l-identifier"
+  type="text"
+  autoComplete="username"
+  value={identifier}
+  onChange={(e) => setIdentifier(e.target.value)}
+  placeholder="Email or 9876543210"
+/>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="l-pw">Password</Label>
@@ -115,6 +122,7 @@ function LoginForm({ onDone }: { onDone: () => void }) {
 function RegisterForm({ onDone }: { onDone: () => void }) {
   const [fullName, setFullName] = useState("");
   const [mobile, setMobile] = useState("");
+  const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirm, setConfirm] = useState("");
   const [institute, setInstitute] = useState("");
@@ -127,15 +135,21 @@ function RegisterForm({ onDone }: { onDone: () => void }) {
 if (!/^[6-9]\d{9}$/.test(m)) {
   return toast.error("Enter a valid 10-digit mobile number");
 }
+const normalizedEmail = email.trim().toLowerCase();
+
+if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+  return toast.error("Enter a valid email address");
+}
     if (password.length < 6) return toast.error("Password must be at least 6 characters");
     if (password !== confirm) return toast.error("Passwords do not match");
     setLoading(true);
     const { error } = await signUpTeacher({
-      fullName: fullName.trim(),
-      mobile: m,
-      password,
-      instituteName: institute.trim() || undefined,
-    });
+  fullName: fullName.trim(),
+  mobile: m,
+  email: normalizedEmail,
+  password,
+  instituteName: institute.trim() || undefined,
+});
     setLoading(false);
     if (error) return toast.error(error.message || "Could not create account");
     toast.success("Account created — please sign in");
@@ -162,6 +176,17 @@ if (!/^[6-9]\d{9}$/.test(m)) {
           onChange={(e) => setMobile(e.target.value)}
           placeholder="9876543210"
         />
+        <div className="space-y-1.5">
+  <Label htmlFor="r-email">Email address</Label>
+  <Input
+    id="r-email"
+    type="email"
+    autoComplete="email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    placeholder="you@example.com"
+  />
+</div>
       </div>
       <div className="space-y-1.5">
         <Label htmlFor="r-institute">
