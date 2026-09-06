@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { PageHeader } from "@/components/page-header";
+// import { updateAccountEmail } from "@/lib/account.functions";
 // import { Settings as SettingsIcon } from "lucide-react";
 import {
   Dialog,
@@ -59,20 +60,57 @@ function SettingsPage() {
       return data;
     },
   });
+async function saveEmail() {
+  const normalizedEmail = email.trim().toLowerCase();
 
+  if (!normalizedEmail) {
+    toast.error("Enter your email address");
+    return;
+  }
+
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail)) {
+    toast.error("Enter a valid email address");
+    return;
+  }
+
+  setEmailSaving(true);
+
+  try {
+    const { error } = await supabase.auth.updateUser({
+      email: normalizedEmail,
+    });
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success(
+      "Confirmation email sent. Please check your email to complete the change.",
+    );
+  } finally {
+    setEmailSaving(false);
+  }
+}
   const [name, setName] = useState("");
   const [institute, setInstitute] = useState("");
   const [mobile, setMobile] = useState("");
+  const [email, setEmail] = useState("");
+const [emailSaving, setEmailSaving] = useState(false);
   const [saving, setSaving] = useState(false);
   // const [selected, setSelected] = useState<"home" | "profile" | "security">("home");
 
-  useEffect(() => {
-    if (profile.data) {
-      setName(profile.data.full_name ?? "");
-      setInstitute(profile.data.institute_name ?? "");
-      setMobile(profile.data.mobile ?? "");
-    }
-  }, [profile.data]);
+useEffect(() => {
+  if (profile.data) {
+    setName(profile.data.full_name ?? "");
+    setInstitute(profile.data.institute_name ?? "");
+    setMobile(profile.data.mobile ?? "");
+  }
+
+  supabase.auth.getUser().then(({ data }) => {
+    setEmail(data.user?.email ?? "");
+  });
+}, [profile.data]);
 
   async function saveProfile(e: React.FormEvent) {
     e.preventDefault();
@@ -408,11 +446,37 @@ const exportStudents = useQuery({
                 <Label>Mobile number</Label>
                 <Input value={mobile} disabled />
               </div>
-
+   
               <p className="text-xs text-muted-foreground">
                 Mobile number is used to sign in and cannot be changed here.
               </p>
+           <div className="space-y-1.5">
+  <Label htmlFor="profile-email">Email address</Label>
 
+  <div className="flex gap-2">
+    <Input
+      id="profile-email"
+      type="email"
+      autoComplete="email"
+      value={email}
+      onChange={(e) => setEmail(e.target.value)}
+      placeholder="you@example.com"
+    />
+
+    <Button
+      type="button"
+      variant="outline"
+      onClick={saveEmail}
+      disabled={emailSaving}
+    >
+      {emailSaving ? "Saving..." : "Save Email"}
+    </Button>
+  </div>
+
+  <p className="text-xs text-muted-foreground">
+    This email will be used for password recovery.
+  </p>
+</div>
               <Button type="submit" disabled={saving}>
                 {saving ? "Saving..." : "Save Changes"}
               </Button>
