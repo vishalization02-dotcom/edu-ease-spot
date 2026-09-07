@@ -4,10 +4,6 @@ export function normalizeMobile(mobile: string) {
   return mobile.replace(/\D/g, "");
 }
 
-function mobileToEmail(mobile: string) {
-  return `${normalizeMobile(mobile)}@classledger.local`;
-}
-
 export async function signUpTeacher(params: {
   fullName: string;
   mobile: string;
@@ -35,12 +31,40 @@ export async function signInTeacher(
 ) {
   const value = identifier.trim();
 
-  const email = value.includes("@")
-    ? value.toLowerCase()
-    : mobileToEmail(value);
+  // Email login
+  if (value.includes("@")) {
+    return supabase.auth.signInWithPassword({
+      email: value.toLowerCase(),
+      password,
+    });
+  }
+
+  // Mobile login
+  const mobile = normalizeMobile(value);
+
+  const { data: authEmail, error: lookupError } = await supabase.rpc(
+    "get_auth_email_by_mobile",
+    {
+      p_mobile: mobile,
+    },
+  );
+
+  if (lookupError) {
+    return {
+      data: { user: null, session: null },
+      error: lookupError,
+    };
+  }
+
+  if (!authEmail) {
+    return {
+      data: { user: null, session: null },
+      error: new Error("Invalid mobile number or password"),
+    };
+  }
 
   return supabase.auth.signInWithPassword({
-    email,
+    email: authEmail,
     password,
   });
 }
