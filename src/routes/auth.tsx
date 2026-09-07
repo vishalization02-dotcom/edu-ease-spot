@@ -1,4 +1,10 @@
-import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+// import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
+import {
+  createFileRoute,
+  useNavigate,
+  Link,
+  Outlet,
+} from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { GraduationCap } from "lucide-react";
 import { toast } from "sonner";
@@ -18,6 +24,7 @@ export const Route = createFileRoute("/auth")({
 
 function AuthPage() {
   const navigate = useNavigate();
+
   const [tab, setTab] = useState<"login" | "register">("login");
 
   useEffect(() => {
@@ -25,6 +32,12 @@ function AuthPage() {
       if (data.session) navigate({ to: "/dashboard", replace: true });
     });
   }, [navigate]);
+
+  const pathname = window.location.pathname;
+
+  if (pathname === "/auth/forgot" || pathname === "/auth/reset") {
+    return <Outlet />;
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-background via-background to-accent/40 p-4">
@@ -65,6 +78,7 @@ function AuthPage() {
 }
 
 function LoginForm({ onDone }: { onDone: () => void }) {
+  const navigate = useNavigate();
   const [identifier, setIdentifier] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -103,15 +117,28 @@ const { error } = await signInTeacher(value, password);
 />
       </div>
       <div className="space-y-1.5">
-        <Label htmlFor="l-pw">Password</Label>
-        <Input
-          id="l-pw"
-          type="password"
-          autoComplete="current-password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
+  <div className="flex items-center justify-between">
+    <Label htmlFor="l-pw">Password</Label>
+
+    <button
+  type="button"
+  onClick={() => {
+    window.location.href = "/auth/forgot";
+  }}
+  className="text-xs text-primary hover:underline cursor-pointer"
+>
+  Forgot password?
+</button>
+  </div>
+
+  <Input
+    id="l-pw"
+    type="password"
+    autoComplete="current-password"
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+  />
+</div>
       <Button type="submit" size="lg" className="w-full" disabled={loading}>
         {loading ? "Signing in..." : "Sign in"}
       </Button>
