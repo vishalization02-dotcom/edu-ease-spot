@@ -47,124 +47,45 @@ useEffect(() => {
   } = supabase.auth.onAuthStateChange((event, session) => {
     if (!active) return;
 
-    console.log("AUTH RECOVERY EVENT:", event, session?.user?.email);
+    console.log(
+      "AUTH RECOVERY EVENT:",
+      event,
+      session?.user?.email,
+    );
 
     if (event === "PASSWORD_RECOVERY" && session) {
+      console.log("PASSWORD RECOVERY SESSION READY");
+
       setReady(true);
       setChecking(false);
     }
   });
 
-  async function initializeRecovery() {
-    try {
-      const hash = window.location.hash;
+  async function checkRecoverySession() {
+    const { data, error } = await supabase.auth.getSession();
 
-      const params = new URLSearchParams(hash.replace(/^#/, ""));
+    if (!active) return;
 
-      const accessToken = params.get("access_token");
-      const refreshToken = params.get("refresh_token");
-      const type = params.get("type");
+    console.log(
+      "CURRENT SESSION:",
+      data.session?.user?.email,
+      "ERROR:",
+      error,
+    );
 
-      console.log("RECOVERY URL:", {
-        type,
-        hasAccessToken: Boolean(accessToken),
-        hasRefreshToken: Boolean(refreshToken),
-      });
-
-      /*
-       * Supabase normally detects these tokens automatically.
-       * If the session has not been created yet, establish it explicitly.
-       */
-      if (type === "recovery" && accessToken && refreshToken) {
-        const { data, error } = await supabase.auth.setSession({
-          access_token: accessToken,
-          refresh_token: refreshToken,
-        });
-
-        if (!active) return;
-
-        if (!error && data.session) {
-          console.log("RECOVERY SESSION CREATED");
-          setReady(true);
-          setChecking(false);
-          return;
-        }
-
-        console.error("RECOVERY SESSION ERROR:", error);
-      }
-
-      /*
-       * Supabase may already have consumed the URL and created
-       * the recovery session.
-       */
-      const { data, error } = await supabase.auth.getSession();
-
-      if (!active) return;
-
-      if (!error && data.session) {
-        console.log("EXISTING RECOVERY SESSION FOUND");
-        setReady(true);
-        setChecking(false);
-        return;
-      }
-
-      console.log("NO RECOVERY SESSION YET");
-    } catch (error) {
-      console.error("RECOVERY INITIALIZATION ERROR:", error);
+    if (!error && data.session) {
+      setReady(true);
+      setChecking(false);
     }
   }
 
-  initializeRecovery();
-
-  const timeout = window.setTimeout(() => {
-    if (!active) return;
-
-    setChecking(false);
-    setReady(false);
-  }, 15000);
+  checkRecoverySession();
 
   return () => {
     active = false;
-    window.clearTimeout(timeout);
     subscription.unsubscribe();
   };
 }, []);
-
-  async function submit(e: React.FormEvent) {
-    e.preventDefault();
-
-    if (password.length < 6) {
-      toast.error("Password must be at least 6 characters");
-      return;
-    }
-
-    if (password !== confirmation) {
-      toast.error("Passwords do not match");
-      return;
-    }
-
-    setSaving(true);
-
-    const { error } = await supabase.auth.updateUser({
-      password,
-    });
-
-    setSaving(false);
-
-    if (error) {
-      toast.error(error.message);
-      return;
-    }
-
-    toast.success("Password updated successfully");
-
-    await supabase.auth.signOut();
-
-    navigate({
-      to: "/auth",
-      replace: true,
-    });
-  }
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -194,7 +115,7 @@ useEffect(() => {
         ) : !ready ? (
           <div className="space-y-4 text-center">
             <p className="text-sm text-muted-foreground">
-              This reset link is invalid or has expired.
+              We couldn't verify your password reset session. Please request a new reset link.
             </p>
 
             <Button
