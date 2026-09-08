@@ -39,46 +39,75 @@ function ResetPasswordPage() {
   const [checking, setChecking] = useState(true);
   const [ready, setReady] = useState(false);
 
-  useEffect(() => {
-    let active = true;
+useEffect(() => {
+  let active = true;
 
-    const {
-      data: { subscription },
-    } = supabase.auth.onAuthStateChange((event, session) => {
-      if (!active) return;
+  const {
+    data: { subscription },
+  } = supabase.auth.onAuthStateChange((event, session) => {
+    if (!active) return;
 
-      if (event === "PASSWORD_RECOVERY") {
-        setReady(Boolean(session));
-        setChecking(false);
-      }
-    });
+    if (event === "PASSWORD_RECOVERY" && session) {
+      setReady(true);
+      setChecking(false);
+    }
+  });
 
-    async function checkExistingSession() {
-      const { data, error } = await supabase.auth.getSession();
+  async function initializeRecovery() {
+    const hash = window.location.hash;
+
+    const params = new URLSearchParams(hash.replace(/^#/, ""));
+
+    const accessToken = params.get("access_token");
+    const refreshToken = params.get("refresh_token");
+    const type = params.get("type");
+
+    // Recovery link contains tokens directly in the URL.
+    if (type === "recovery" && accessToken && refreshToken) {
+      const { data, error } = await supabase.auth.setSession({
+        access_token: accessToken,
+        refresh_token: refreshToken,
+      });
 
       if (!active) return;
 
       if (!error && data.session) {
         setReady(true);
         setChecking(false);
+        return;
       }
     }
 
-    checkExistingSession();
+    // Supabase may already have processed the recovery URL.
+    const { data, error } = await supabase.auth.getSession();
 
-    const timeout = window.setTimeout(() => {
-      if (active) {
-        setChecking(false);
-        setReady(false);
-      }
-    }, 10000);
+    if (!active) return;
 
-    return () => {
-      active = false;
-      window.clearTimeout(timeout);
-      subscription.unsubscribe();
-    };
-  }, []);
+    if (!error && data.session && type === "recovery") {
+      setReady(true);
+      setChecking(false);
+      return;
+    }
+
+    setChecking(false);
+    setReady(false);
+  }
+
+  initializeRecovery();
+
+  const timeout = window.setTimeout(() => {
+    if (active) {
+      setChecking(false);
+      setReady(false);
+    }
+  }, 10000);
+
+  return () => {
+    active = false;
+    window.clearTimeout(timeout);
+    subscription.unsubscribe();
+  };
+}, []);
 
   async function submit(e: React.FormEvent) {
     e.preventDefault();
