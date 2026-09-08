@@ -27,20 +27,13 @@ function AuthPage() {
 
   const [tab, setTab] = useState<"login" | "register">("login");
 
-  const pathname = window.location.pathname;
-
   useEffect(() => {
-    // Do not redirect recovery/forgot-password pages
-    if (pathname === "/auth/forgot" || pathname === "/auth/reset") {
-      return;
-    }
-
     supabase.auth.getSession().then(({ data }) => {
-      if (data.session) {
-        navigate({ to: "/dashboard", replace: true });
-      }
+      if (data.session) navigate({ to: "/dashboard", replace: true });
     });
-  }, [navigate, pathname]);
+  }, [navigate]);
+
+  const pathname = window.location.pathname;
 
   if (pathname === "/auth/forgot" || pathname === "/auth/reset") {
     return <Outlet />;

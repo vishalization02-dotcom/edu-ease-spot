@@ -39,53 +39,82 @@ function ResetPasswordPage() {
   const [checking, setChecking] = useState(true);
   const [ready, setReady] = useState(false);
 
-useEffect(() => {
-  let active = true;
+  useEffect(() => {
+    let active = true;
 
-  const {
-    data: { subscription },
-  } = supabase.auth.onAuthStateChange((event, session) => {
-    if (!active) return;
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!active) return;
 
-    console.log(
-      "AUTH RECOVERY EVENT:",
-      event,
-      session?.user?.email,
-    );
+      if (event === "PASSWORD_RECOVERY") {
+        setReady(Boolean(session));
+        setChecking(false);
+      }
+    });
 
-    if (event === "PASSWORD_RECOVERY" && session) {
-      console.log("PASSWORD RECOVERY SESSION READY");
+    async function checkExistingSession() {
+      const { data, error } = await supabase.auth.getSession();
 
-      setReady(true);
-      setChecking(false);
+      if (!active) return;
+
+      if (!error && data.session) {
+        setReady(true);
+        setChecking(false);
+      }
     }
-  });
 
-  async function checkRecoverySession() {
-    const { data, error } = await supabase.auth.getSession();
+    checkExistingSession();
 
-    if (!active) return;
+    const timeout = window.setTimeout(() => {
+      if (active) {
+        setChecking(false);
+        setReady(false);
+      }
+    }, 10000);
 
-    console.log(
-      "CURRENT SESSION:",
-      data.session?.user?.email,
-      "ERROR:",
-      error,
-    );
+    return () => {
+      active = false;
+      window.clearTimeout(timeout);
+      subscription.unsubscribe();
+    };
+  }, []);
 
-    if (!error && data.session) {
-      setReady(true);
-      setChecking(false);
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+
+    if (password.length < 6) {
+      toast.error("Password must be at least 6 characters");
+      return;
     }
+
+    if (password !== confirmation) {
+      toast.error("Passwords do not match");
+      return;
+    }
+
+    setSaving(true);
+
+    const { error } = await supabase.auth.updateUser({
+      password,
+    });
+
+    setSaving(false);
+
+    if (error) {
+      toast.error(error.message);
+      return;
+    }
+
+    toast.success("Password updated successfully");
+
+    await supabase.auth.signOut();
+
+    navigate({
+      to: "/auth",
+      replace: true,
+    });
   }
-
-  checkRecoverySession();
-
-  return () => {
-    active = false;
-    subscription.unsubscribe();
-  };
-}, []);
 
   return (
     <main className="flex min-h-screen items-center justify-center bg-background p-4">
@@ -115,7 +144,7 @@ useEffect(() => {
         ) : !ready ? (
           <div className="space-y-4 text-center">
             <p className="text-sm text-muted-foreground">
-              We couldn't verify your password reset session. Please request a new reset link.
+              This reset link is invalid or has expired.
             </p>
 
             <Button
