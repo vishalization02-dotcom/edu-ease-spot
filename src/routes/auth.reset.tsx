@@ -47,6 +47,8 @@ useEffect(() => {
   } = supabase.auth.onAuthStateChange((event, session) => {
     if (!active) return;
 
+    console.log("AUTH RECOVERY EVENT:", event, session?.user?.email);
+
     if (event === "PASSWORD_RECOVERY" && session) {
       setReady(true);
       setChecking(false);
@@ -54,53 +56,72 @@ useEffect(() => {
   });
 
   async function initializeRecovery() {
-    const hash = window.location.hash;
+    try {
+      const hash = window.location.hash;
 
-    const params = new URLSearchParams(hash.replace(/^#/, ""));
+      const params = new URLSearchParams(hash.replace(/^#/, ""));
 
-    const accessToken = params.get("access_token");
-    const refreshToken = params.get("refresh_token");
-    const type = params.get("type");
+      const accessToken = params.get("access_token");
+      const refreshToken = params.get("refresh_token");
+      const type = params.get("type");
 
-    // Recovery link contains tokens directly in the URL.
-    if (type === "recovery" && accessToken && refreshToken) {
-      const { data, error } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
+      console.log("RECOVERY URL:", {
+        type,
+        hasAccessToken: Boolean(accessToken),
+        hasRefreshToken: Boolean(refreshToken),
       });
+
+      /*
+       * Supabase normally detects these tokens automatically.
+       * If the session has not been created yet, establish it explicitly.
+       */
+      if (type === "recovery" && accessToken && refreshToken) {
+        const { data, error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+
+        if (!active) return;
+
+        if (!error && data.session) {
+          console.log("RECOVERY SESSION CREATED");
+          setReady(true);
+          setChecking(false);
+          return;
+        }
+
+        console.error("RECOVERY SESSION ERROR:", error);
+      }
+
+      /*
+       * Supabase may already have consumed the URL and created
+       * the recovery session.
+       */
+      const { data, error } = await supabase.auth.getSession();
 
       if (!active) return;
 
       if (!error && data.session) {
+        console.log("EXISTING RECOVERY SESSION FOUND");
         setReady(true);
         setChecking(false);
         return;
       }
+
+      console.log("NO RECOVERY SESSION YET");
+    } catch (error) {
+      console.error("RECOVERY INITIALIZATION ERROR:", error);
     }
-
-    // Supabase may already have processed the recovery URL.
-    const { data, error } = await supabase.auth.getSession();
-
-    if (!active) return;
-
-    if (!error && data.session && type === "recovery") {
-      setReady(true);
-      setChecking(false);
-      return;
-    }
-
-    setChecking(false);
-    setReady(false);
   }
 
   initializeRecovery();
 
   const timeout = window.setTimeout(() => {
-    if (active) {
-      setChecking(false);
-      setReady(false);
-    }
-  }, 10000);
+    if (!active) return;
+
+    setChecking(false);
+    setReady(false);
+  }, 15000);
 
   return () => {
     active = false;
